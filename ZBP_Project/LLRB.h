@@ -34,19 +34,31 @@ public:
 	template<typename T>
 	node<T> rotateLeft(node<T> h)
 	{
-
+		auto x = h.Right;
+		h.Right = x.left;
+		x.left = h;
+		x.IsRed = h.IsRed;
+		h.IsRed = true;
+		return x;
 	}
 
 	template<typename T>
 	node<T> rotateRight(node<T> h)
 	{
-
+		auto x = h.Left;
+		h.Left = x.Right;
+		x.Right = h;
+		x.IsRed = h.IsRed;
+		h.IsRed = true;
+		return x;
 	}
 
 	template<typename T>
 	void flipColors(node<T> h)
 	{
-
+		h.IsRed = !h.IsRed;
+		h.Left.IsRed = !h.Left.IsRed;
+		h.Right.IsRed = !h.Right.IsRed;
 	}
 
 	template<typename T>
@@ -58,7 +70,19 @@ public:
 	template<typename T>
 	T search(T data)
 	{
-
+		node<T> temp = root;
+		while (temp != nullptr)
+		{
+			if (!(data > temp.data) && !(temp.data > data))
+			{
+				return temp.data;
+			}
+			if (data > temp.data)
+				temp = temp.Left;
+			else
+				temp = temp.Right;
+		}
+		return nullptr;
 	}
 
 private:
