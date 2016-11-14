@@ -76,7 +76,9 @@ public:
 	template<typename T>
 	void erase(T data)
 	{
-
+		root = erase(root, data);
+		if(root != nullptr)
+			root->IsRed = false;
 	}
 
 	template<typename T>
@@ -123,6 +125,23 @@ public:
 		}
 	}
 
+
+	template<typename T>
+	node<T>* deleteMin()
+	{
+		root = deleteMin(root);
+		root->IsRed = false;
+	}
+
+	node<T>* findMin(node<T>* h)
+	{
+		node<T>* temp = h;
+		while (temp->Left)
+			temp = temp->Left;
+		return temp;
+	}
+
+
 private:
 	node<T>* root;
 
@@ -150,9 +169,64 @@ private:
 	}
 
 	template<typename T>
-	void erase(node<T> h, T data)
+	node<T>* erase(node<T>* h, T data)
 	{
+		if (data < h->data)
+		{
+			if (!IsRed(h->Left) && !IsRed(h->Left->Left))
+				h = moveRedLeft(h);
+			h->Left = erase(h->Left, data);
+		}
+		else
+		{
+			if (IsRed(h->Left))
+				h = rotateRight(h);
+			if (data == h->data && h->Right == nullptr)
+			{
+				delete h;
+				return nullptr;
+			}
+			if (!IsRed(h->Right) && !IsRed(h->Right->Left))
+				h = moveRedRight(h);
+			if (data == h->data)
+			{
+				h->data = findMin(h->Right)->data; //---------------------------------???????
+				h->Right = deleteMin(h->Right);
+			}
+			else
+				h->Right = erase(h->Right, data);
+		}
+		return fixUp(h);
+	}
 
+	template<typename T>
+	node<T>* fixUp(node<T>* h)
+	{
+		if (IsRed(h->Right))
+			h = rotateLeft(h);
+
+		if (IsRed(h->Left) && IsRed(h->Left->Left))
+			h = rotateRight(h);
+		if (IsRed(h->Left) && IsRed(h->Right))
+			flipColors(h);
+
+		return h;
+	}
+
+	template<typename T>
+	node<T>* deleteMin(node<T>* h)
+	{
+		if (h->Left == nullptr)
+		{
+			delete h;
+			return nullptr;
+		}
+		if (!IsRed(h->Left) && !IsRed(h->Left->Left))
+			h = moveRedLeft(h);
+
+		h->Left = deleteMin(h->Left);
+
+		return fixUp(h);
 	}
 
 	template<typename T>
@@ -161,7 +235,7 @@ private:
 		flipColors(h);
 		if (IsRed(h->Right->Left))
 		{
-			h->Right = rotateRight(h->right);
+			h->Right = rotateRight(h->Right);
 			h = rotateLeft(h);
 			flipColors(h);
 		}
@@ -201,4 +275,5 @@ inline LLRB<T>::LLRB()
 template<typename T>
 inline LLRB<T>::~LLRB()
 {
+	delete root;
 }
