@@ -18,7 +18,7 @@ struct node
 
 	node(T data) : data(data), IsRed(true)
 	{
-		Left = Right = nullptr;
+		Parent = Left = Right = nullptr;
 	}
 
 	node() : IsRed(true)
@@ -48,9 +48,17 @@ public:
 	{
 		auto x = h->Right;
 		h->Right = x->Left;
+
+		if(h->Right)
+			h->Right->Parent = h;
+
 		x->Left = h;
 		x->IsRed = h->IsRed;
 		h->IsRed = true;
+
+		x->Parent = h->Parent;
+		h->Parent = x;
+
 		return x;
 	}
 
@@ -59,9 +67,17 @@ public:
 	{
 		auto x = h->Left;
 		h->Left = x->Right;
+
+		if (h->Left)
+			h->Left->Parent = h;
+
 		x->Right = h;
 		x->IsRed = h->IsRed;
 		h->IsRed = true;
+
+		h->Parent = x->Parent;
+		x->Parent = h;
+
 		return x;
 	}
 
@@ -154,10 +170,16 @@ private:
 			return new node<T>(data);
 
 		if (data > h->data)
+		{
 			h->Right = insert(h->Right, data);
+			h->Right->Parent = h;
+		}
 		else
-			h->Left = insert(h->Left, data);
+		{
 
+			h->Left = insert(h->Left, data);
+			h->Left->Parent = h;
+		}
 		if (IsRed(h->Right) && !IsRed(h->Left))
 			h = rotateLeft(h);
 		if (IsRed(h->Left) && IsRed(h->Left->Left))
