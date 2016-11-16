@@ -2,10 +2,7 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
-
-
 #include "LLRB.h"
-
 
 
 int main()
@@ -24,19 +21,26 @@ int main()
 
 	std::cout << tree << "\n\n\n\n\n\n";
 
-	tree.erase(1);
+	tree.erase(8);
+	std::cout << tree << "\n\n\n\n\n\n";
 	tree.erase(2);
+	std::cout << tree << "\n\n\n\n\n\n";
 	tree.erase(3);
+	std::cout << tree << "\n\n\n\n\n\n";
 	tree.erase(4);
+	std::cout << tree << "\n\n\n\n\n\n";
 	tree.erase(5);
 
-	std::cout << tree;
+	std::cout << tree << "\n\n\n\n\n\n";
 
 	tree.erase(6);
+	std::cout << tree << "\n\n\n\n\n\n";
 	tree.erase(7);
-	tree.erase(8);
+	std::cout << tree << "\n\n\n\n\n\n";
 	tree.erase(9);
-
+	std::cout << tree << "\n\n\n\n\n\n";
+	tree.erase(1);
+	std::cout << tree << "\n\n\n\n\n\n";
 	std::cout << tree;
 
 	_CrtDumpMemoryLeaks();

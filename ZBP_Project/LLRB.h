@@ -44,41 +44,39 @@ public:
 
 
 	template<typename T>
-	node<T>* rotateLeft(node<T>* h)
+	node<T>* rotateLeft(node<T>* a)
 	{
-		auto x = h->Right;
-		h->Right = x->Left;
+		auto b = a->Right;
 
-		if(h->Right)
-			h->Right->Parent = h;
+		if(a->Right = b->Left)
+			a->Right->Parent = a;
 
-		x->Left = h;
-		x->IsRed = h->IsRed;
-		h->IsRed = true;
+		b->Left = a;
+		b->IsRed = a->IsRed;
+		a->IsRed = true;
 
-		x->Parent = h->Parent;
-		h->Parent = x;
+		b->Parent = a->Parent;
+		a->Parent = b;
 
-		return x;
+		return b;
 	}
 
 	template<typename T>
-	node<T>* rotateRight(node<T>* h)
+	node<T>* rotateRight(node<T>* b)
 	{
-		auto x = h->Left;
-		h->Left = x->Right;
+		auto a = b->Left;
 
-		if (h->Left)
-			h->Left->Parent = h;
+		if (b->Left = a->Right)
+			b->Left->Parent = b;
 
-		x->Right = h;
-		x->IsRed = h->IsRed;
-		h->IsRed = true;
+		a->Right = b;
+		a->IsRed = b->IsRed;
+		b->IsRed = true;
 
-		h->Parent = x->Parent;
-		x->Parent = h;
+		a->Parent = b->Parent;
+		b->Parent = a;
 
-		return x;
+		return a;
 	}
 
 	template<typename T>
@@ -146,7 +144,8 @@ public:
 	node<T>* deleteMin()
 	{
 		root = deleteMin(root);
-		root->IsRed = false;
+		if(root)
+			root->IsRed = false;
 	}
 
 	node<T>* findMin(node<T>* h)
@@ -212,7 +211,7 @@ private:
 				h = moveRedRight(h);
 			if (data == h->data)
 			{
-				h->data = findMin(h->Right)->data; //---------------------------------???????
+				h->data = findMin(h->Right)->data;
 				h->Right = deleteMin(h->Right);
 			}
 			else
@@ -224,9 +223,8 @@ private:
 	template<typename T>
 	node<T>* fixUp(node<T>* h)
 	{
-		if (IsRed(h->Right))
+		if (IsRed(h->Right))	
 			h = rotateLeft(h);
-
 		if (IsRed(h->Left) && IsRed(h->Left->Left))
 			h = rotateRight(h);
 		if (IsRed(h->Left) && IsRed(h->Right))
