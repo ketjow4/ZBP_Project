@@ -148,6 +148,7 @@ public:
 			root->IsRed = false;
 	}
 
+	template<typename T>
 	node<T>* findMin(node<T>* h)
 	{
 		node<T>* temp = h;
@@ -156,9 +157,30 @@ public:
 		return temp;
 	}
 
+	template<typename T>
+	node<T>* next(node<T>* h)
+	{
+		if (h->Right != nullptr)
+		{
+			h = h->Right;
+			while (h->Left)		//it is find min function
+			{
+				h = h->Left;
+			}
+			return h;
+		}
+		node<T>* y = h->Parent;
+		while (y != nullptr && h == y->Right)
+		{
+			h = y;
+			y = y->Parent;
+		}
+		return y;
+	}
 
-private:
 	node<T>* root;
+private:
+	
 
 
 

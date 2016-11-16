@@ -19,6 +19,12 @@ int main()
 	tree.insert(8);
 	tree.insert(9);
 
+
+	node<int>* min = tree.findMin(tree.root);
+	std::cout << min->data << endl;
+	std::cout << tree.next(min)->data << endl;
+	std::cout << tree.next(tree.root)->data << endl;
+
 	std::cout << tree << "\n\n\n\n\n\n";
 
 	tree.erase(8);
