@@ -4,10 +4,17 @@
 
 #include "LLRB.h"
 
+#include <set>
 
 int main()
 {
 	LLRB<int> tree;
+
+	std::set<int> a;
+
+	a.insert(1);
+	auto b = a.begin();
+	//*b = 2;
 
 	tree.insert(1);
 	tree.insert(2);

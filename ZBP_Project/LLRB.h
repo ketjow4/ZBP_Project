@@ -6,6 +6,7 @@
 
 using namespace std;
 
+
 template<typename T>
 struct node
 {
@@ -27,12 +28,41 @@ struct node
 	}
 };
 
+
+template<typename T>
+class iteratorLLRB : public iteratorLLRB<bidirectional_iterator_tag>
+{
+	typedef  iteratorLLRB<T> self_type;
+	typedef bidirectional_iterator_tag iterator_category;
+	typedef int difference_type;
+	//typedef size_t size_type;
+	typedef T value_type;
+	typedef T * pointer;
+	typedef T & reference;
+	typedef node<T>*  nodePtr;
+
+	iteratorLLRB(nodePtr ptr) : ptr_(ptr) { }
+
+	self_type operator++() { self_type i = *this; ptr_->next(); return i; }
+	self_type operator++(int) { ptr_->next(); return *this; }
+	reference operator*() { return *ptr_->data; }
+	pointer operator->() { return ptr_; }
+	bool operator==(const self_type& rhs) { return ptr_ == rhs.ptr_; }
+	bool operator!=(const self_type& rhs) { return ptr_ != rhs.ptr_; }
+private:
+	nodePtr ptr_;
+};
+
+
 template<typename T>
 class LLRB
 {
 public:
 	LLRB();
 	~LLRB();
+
+
+	friend class iteratorLLRB<T>;
 
 
 	template<typename T>
