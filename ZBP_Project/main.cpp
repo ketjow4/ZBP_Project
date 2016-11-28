@@ -18,11 +18,35 @@ int main()
 {
 	LLRB<int> tree;
 
-	std::set<int> a;
+	//std::set<int> a;
 
-	a.insert(1);
-	auto b = a.begin();
-	//*b = 2;
+	//a.insert(1);
+	//a.insert(2);
+	//a.insert(3);
+	//a.insert(4);
+	//a.insert(5);
+	//a.insert(6);
+	//a.insert(7);
+	//a.insert(8);
+	//a.insert(9);
+
+	//auto b = a.begin();
+	//for (int i = 0; i < 7; i++)
+	//{
+	//	std::cout << *b << '\n';
+	//	b++;
+	//}
+	//a.insert(10);
+	//std::cout << *b << "\n";	//shoudl be 8
+
+	//a.insert(11);
+
+	//std::cout << *++b << "\n";	//should be 9
+
+	//a.erase(8);
+
+	//std::cout << *b << "\n";	//shoudl be 9
+
 
 	tree.insert(1);
 	tree.insert(2);
@@ -41,11 +65,32 @@ int main()
 	//std::cout << tree.next(tree.root)->data << endl;
 
 	auto it = tree.begin();
-	for (int i = 0; i < 7; i++)
+	for (; it != tree.end(); ++it)
 	{
 		std::cout << *it << '\n';
-		it++;
 	}
+
+	tree.insert(10);
+
+
+	std::cout << tree << "\n\n\n\n\n\n";
+
+	std::cout << "Decrement iterator:\n";
+	for (auto it2 = tree.end(); it2 != tree.begin(); --it2)
+	{
+		std::cout << *it2 << '\n';
+	}
+
+	//std::cout << *it << "\n";	//shoudl be 8
+
+	//tree.insert(11);
+
+	//std::cout << *++it << "\n";	//should be 9
+
+
+	//tree.erase(8);
+
+	//std::cout << *it << "\n";	//shoudl be 9
 
 	std::cout << tree << "\n\n\n\n\n\n";
 

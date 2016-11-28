@@ -120,7 +120,7 @@ public:
 	{
 		if (ptr_ == nullptr)
 			;					//this should be end();
-		else if (ptr_->left != nullptr)
+		else if (ptr_->Left != nullptr)
 		{
 			ptr_ = ptr_->Left;
 			while (ptr_->Right)		//it is find min function
@@ -240,6 +240,11 @@ public:
 	iteratorLLRB<T> begin()
 	{
 		return iteratorLLRB<T>(findMin(root));
+	}
+
+	iteratorLLRB<T> end()
+	{
+		return iteratorLLRB<T>(findMax(root));
 	}
 
 	template<typename T>
@@ -362,6 +367,15 @@ public:
 		node<T>* temp = h;
 		while (temp->Left)
 			temp = temp->Left;
+		return temp;
+	}
+
+	template<typename T>
+	node<T>* findMax(node<T>* h)
+	{
+		node<T>* temp = h;
+		while (temp->Right)
+			temp = temp->Right;
 		return temp;
 	}
 
