@@ -6,6 +6,14 @@
 
 #include <set>
 
+void TestInsert()
+{
+	LLRB<int> tree;
+
+	std::set<int> a;
+}
+
+
 int main()
 {
 	LLRB<int> tree;
@@ -27,10 +35,17 @@ int main()
 	tree.insert(9);
 
 
-	node<int>* min = tree.findMin(tree.root);
-	std::cout << min->data << endl;
-	std::cout << tree.next(min)->data << endl;
-	std::cout << tree.next(tree.root)->data << endl;
+	//node<int>* min = tree.findMin(tree.root);
+	//std::cout << min->data << endl;
+	//std::cout << tree.next(min)->data << endl;
+	//std::cout << tree.next(tree.root)->data << endl;
+
+	auto it = tree.begin();
+	for (int i = 0; i < 7; i++)
+	{
+		std::cout << *it << '\n';
+		it++;
+	}
 
 	std::cout << tree << "\n\n\n\n\n\n";
 
