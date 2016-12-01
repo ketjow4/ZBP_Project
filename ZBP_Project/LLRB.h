@@ -4,8 +4,8 @@
 #include <iostream>
 #include <iomanip>
 
-#include <xmemory>
 #include <stdexcept>
+#include <iterator>
 
 using namespace std;
 
@@ -29,27 +29,6 @@ struct node
 	{
 		//data = nullptr;
 	}
-
-	//template<typename T>
-	//node<T>* next(node<T>* h)
-	//{
-	//	if (h->Right != nullptr)
-	//	{
-	//		h = h->Right;
-	//		while (h->Left)		//it is find min function
-	//		{
-	//			h = h->Left;
-	//		}
-	//		return h;
-	//	}
-	//	node<T>* y = h->Parent;
-	//	while (y != nullptr && h == y->Right)
-	//	{
-	//		h = y;
-	//		y = y->Parent;
-	//	}
-	//	return y;
-	//}
 };
 
 template<typename T>
@@ -74,7 +53,7 @@ public:
 	typedef typename const T & reference;
 	typedef typename node<T>*  nodePtr;
 
-	const_iteratorLLRB(nodePtr ptr) : ptr_(ptr) { }
+	const_iteratorLLRB(nodePtr ptr, nodePtr root) : ptr_(ptr), root(root) { }
 
 	self_type& operator++()	//preincrement
 	{ 
@@ -119,7 +98,7 @@ public:
 	self_type& operator--()	// predecrement
 	{
 		if (ptr_ == nullptr)
-			;					//this should be end();
+			ptr_ = LLRB<T>::findMax(root);					
 		else if (ptr_->Left != nullptr)
 		{
 			ptr_ = ptr_->Left;
@@ -161,6 +140,7 @@ public:
 
 private:
 	nodePtr ptr_;
+	nodePtr root;
 };
 
 
@@ -185,7 +165,7 @@ public:
 
 	typedef typename node<T>*  nodePtr;
 
-	iteratorLLRB(nodePtr ptr) : base_type(ptr)  { }
+	iteratorLLRB(nodePtr ptr, nodePtr root) : base_type(ptr,root)   { }
 
 	self_type& operator++()	//preincrement
 	{
@@ -223,7 +203,6 @@ public:
 	}
 
 private:
-	nodePtr ptr_;
 };
 
 template<typename T>
@@ -239,12 +218,12 @@ public:
 
 	iteratorLLRB<T> begin()
 	{
-		return iteratorLLRB<T>(findMin(root));
+		return iteratorLLRB<T>(findMin(root),root);
 	}
 
 	iteratorLLRB<T> end()
 	{
-		return iteratorLLRB<T>(findMax(root));
+		return iteratorLLRB<T>(nullptr,root);
 	}
 
 	template<typename T>
@@ -362,7 +341,7 @@ public:
 	}
 
 	template<typename T>
-	node<T>* findMin(node<T>* h)
+	static node<T>* findMin(node<T>* h)
 	{
 		node<T>* temp = h;
 		while (temp->Left)
@@ -371,7 +350,7 @@ public:
 	}
 
 	template<typename T>
-	node<T>* findMax(node<T>* h)
+	static node<T>* findMax(node<T>* h)
 	{
 		node<T>* temp = h;
 		while (temp->Right)
