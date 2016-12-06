@@ -30,7 +30,7 @@ int main()
 	a.insert(8);
 	a.insert(9);
 
-	for (auto its = a.begin(); its != a.end(); ++its)
+	/*for (auto its = a.begin(); its != a.end(); ++its)
 	{
 		cout << *its << " ";
 	}
@@ -39,24 +39,24 @@ int main()
 	for (auto its = --a.end(); its != a.begin(); --its)
 	{
 		cout << *its << " ";
+	}*/
+
+	auto b = a.begin();
+	for (int i = 0; i < 7; i++)
+	{
+		std::cout << *b << '\n';
+		b++;
 	}
+	a.insert(10);
+	std::cout << *b << "\n";	//shoudl be 8
 
-	//auto b = a.begin();
-	//for (int i = 0; i < 7; i++)
-	//{
-	//	std::cout << *b << '\n';
-	//	b++;
-	//}
-	//a.insert(10);
-	//std::cout << *b << "\n";	//shoudl be 8
+	a.insert(11);
 
-	//a.insert(11);
+	std::cout << *++b << "\n";	//should be 9
 
-	//std::cout << *++b << "\n";	//should be 9
+	a.erase(8);
 
-	//a.erase(8);
-
-	//std::cout << *b << "\n";	//shoudl be 9
+	std::cout << *b << "\n";	//shoudl be 9
 
 
 	tree.insert(1);
@@ -69,13 +69,8 @@ int main()
 	tree.insert(8);
 	tree.insert(9);
 
-
-	//node<int>* min = tree.findMin(tree.root);
-	//std::cout << min->data << endl;
-	//std::cout << tree.next(min)->data << endl;
-	//std::cout << tree.next(tree.root)->data << endl;
-
-	std::cout << "\nLLRB_iterator \n";
+	/*std::cout << "\nLLRB_iterator \n";
+	
 	for (auto it = tree.begin(); it != tree.end(); ++it)
 	{
 		std::cout << *it << ' ';
@@ -84,27 +79,32 @@ int main()
 	for (auto it = --tree.end(); it != tree.begin(); --it)
 	{
 		std::cout << *it << ' ';
-	}
+	}*/
+
+	auto it = tree.begin();
+	for (int i = 0; i < 7; i++)
+		it++;
 
 	tree.insert(10);
 
 
-	std::cout << tree << "\n\n\n\n\n\n";
+	//std::cout << tree << "\n\n\n\n\n\n";
 
-	//std::cout << *it << "\n";	//shoudl be 8
+	std::cout << *it << "\n";	//shoudl be 8
 
-	//tree.insert(11);
+	tree.insert(11);
 
-	//std::cout << *++it << "\n";	//should be 9
-
-
-	//tree.erase(8);
-
-	//std::cout << *it << "\n";	//shoudl be 9
+	std::cout << *++it << "\n";	//should be 9
 
 	std::cout << tree << "\n\n\n\n\n\n";
 
 	tree.erase(8);
+
+	std::cout << *it << "\n";	//shoudl be 9
+
+	std::cout << tree << "\n\n\n\n\n\n";
+
+	//tree.erase(8);
 	std::cout << tree << "\n\n\n\n\n\n";
 	tree.erase(2);
 	std::cout << tree << "\n\n\n\n\n\n";

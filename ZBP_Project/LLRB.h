@@ -34,14 +34,22 @@ struct node
 template<typename T>
 class LLRB;
 
+template<typename T>
+struct ItWrap
+{
+	typedef typename int difference_type;
+	typedef typename T value_type;
+	typedef typename const T * pointer;
+	typedef typename const T & reference;
+};
+
 template<class T>		//, class _Base = _Iterator_base0
 class const_iteratorLLRB  
-	/*: public _Iterator012<bidirectional_iterator_tag,
-	typename T::value_type,
-	typename  T::difference_type,
-	typename  T::pointer,
-	typename  T::reference,
-	_Base>*/
+	: public iterator<bidirectional_iterator_tag,
+	typename ItWrap<T>::value_type,
+	typename ItWrap<T>::difference_type,
+	typename ItWrap<T>::pointer,
+	typename ItWrap<T>::reference>
 {
 public:
 	typedef  const_iteratorLLRB<T> self_type;
@@ -145,15 +153,8 @@ private:
 
 
 
-
-template<class T>		//, class _Base = _Iterator_base0
+template<class T>		
 class iteratorLLRB : public const_iteratorLLRB<T>
-	/*: public _Iterator012<bidirectional_iterator_tag,
-	typename T::value_type,
-	typename  T::difference_type,
-	typename  T::pointer,
-	typename  T::reference,
-	_Base>*/
 {
 public:
 	typedef  iteratorLLRB<T> self_type;
@@ -225,6 +226,17 @@ public:
 	{
 		return iteratorLLRB<T>(nullptr,root);
 	}
+
+	const_iteratorLLRB<T> cbegin()
+	{
+		return const_iteratorLLRB<T>(findMin(root), root);
+	}
+
+	const_iteratorLLRB<T> cend()
+	{
+		return const_iteratorLLRB<T>(nullptr, root);
+	}
+
 
 	template<typename T>
 	void insert(T data)
@@ -421,6 +433,7 @@ private:
 		}
 		return fixUp(h);
 	}
+
 
 	template<typename T>
 	node<T>* fixUp(node<T>* h)
