@@ -31,7 +31,7 @@ struct node
 	}
 };
 
-template<typename T>
+template<typename T, class Compare = less<T> >
 class LLRB;
 
 template<typename T>
@@ -208,12 +208,21 @@ private:
 
 
 
-template<typename T>
+template<typename T, class Compare = less<T> >
 class LLRB
 {
 public:
-	LLRB();
-	~LLRB();
+
+	LLRB<T, Compare>::LLRB()
+	{
+		root = nullptr;
+	}
+
+	LLRB<T, Compare>::~LLRB()
+	{
+		delete root;
+	}
+
 
 	friend class iteratorLLRB<T>;
 	friend class const_iteratorLLRB<T>;
@@ -288,24 +297,6 @@ public:
 			root->IsRed = false;
 	}
 
-	template<typename T>
-	T search(T data)
-	{
-		node<T> temp = root;
-		while (temp != nullptr)
-		{
-			if (!(data > temp.data) && !(temp.data > data))
-			{
-				return temp.data;
-			}
-			if (data > temp.data)
-				temp = temp.Left;
-			else
-				temp = temp.Right;
-		}
-		return nullptr;
-	}
-
 
 	template<typename T>
 	iterator find(T data)
@@ -313,11 +304,11 @@ public:
 		node<T>* temp = root;
 		while (temp != nullptr)
 		{
-			if (!(data > temp->data) && !(temp->data > data))
+			if (!(cmp(data, temp->data)) && !(cmp(temp->data ,data)))
 			{
 				return iterator(temp, root);
 			}
-			if (data > temp->data)
+			if (cmp(data ,temp->data))
 				temp = temp->Left;
 			else
 				temp = temp->Right;
@@ -327,12 +318,6 @@ public:
 
 
 	//--------------------------------------------------------------BEGIN print tree on std::out ------------------------------------------------------------
-	friend ostream& operator<<(ostream& out, LLRB& tree)
-	{
-		postorder(out, tree.root, 0);
-		return out;
-	}
-
 	template<typename T>
 	friend void postorder(ostream& out, node<T>* p, int indent = 0)
 	{
@@ -351,6 +336,12 @@ public:
 			}
 		}
 	}
+	
+	friend ostream& operator<<(ostream& out, LLRB& tree)
+	{
+		postorder(out, tree.root, 0);
+		return out;
+	}
 	//--------------------------------------------------------------END print tree on std::out ------------------------------------------------------------
 
 	template<typename T>
@@ -367,7 +358,7 @@ public:
 	template<typename T>
 	static node<T>* findMin(node<T>* h)
 	{
-		if (root != nullptr)
+		if (h != nullptr)
 		{
 			node<T>* temp = h;
 			while (temp->Left)
@@ -379,7 +370,7 @@ public:
 	template<typename T>
 	static node<T>* findMax(node<T>* h)
 	{
-		if (root != nullptr)
+		if (h != nullptr)
 		{
 			node<T>* temp = h;
 			while (temp->Right)
@@ -390,7 +381,9 @@ public:
 
 	node<T>* root;
 private:
-	
+	Compare cmp;
+
+
 	template<typename T>
 	node<T>* rotateLeft(node<T>* a)
 	{
@@ -442,7 +435,7 @@ private:
 		if (h == nullptr)
 			return new node<T>(data);
 
-		if (data > h->data)
+		if (cmp(data, h->data))
 		{
 			h->Right = insert(h->Right, data);
 			h->Right->Parent = h;
@@ -466,7 +459,7 @@ private:
 	template<typename T>
 	node<T>* erase(node<T>* h, T data)
 	{
-		if (data < h->data)
+		if (cmp(h->data,data))			//operator <
 		{
 			if (!IsRed(h->Left) && !IsRed(h->Left->Left))
 				h = moveRedLeft(h);
@@ -476,14 +469,14 @@ private:
 		{
 			if (IsRed(h->Left))
 				h = rotateRight(h);
-			if (data == h->data && h->Right == nullptr)
+			if (!(cmp(data, h->data)) && !(cmp(h->data, data)) && h->Right == nullptr)
 			{
 				delete h;
 				return nullptr;
 			}
 			if (!IsRed(h->Right) && !IsRed(h->Right->Left))
 				h = moveRedRight(h);
-			if (data == h->data)
+			if (!(cmp(data, h->data)) && !(cmp(h->data, data)))
 			{
 				h->data = findMin(h->Right)->data;
 				h->Right = deleteMin(h->Right);
@@ -561,14 +554,3 @@ private:
 
 #endif // !LLRB_H
 
-template<typename T>
-inline LLRB<T>::LLRB()
-{
-	root = nullptr;
-}
-
-template<typename T>
-inline LLRB<T>::~LLRB()
-{
-	delete root;
-}
