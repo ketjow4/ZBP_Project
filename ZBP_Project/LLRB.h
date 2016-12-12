@@ -206,6 +206,8 @@ public:
 private:
 };
 
+
+
 template<typename T>
 class LLRB
 {
@@ -213,9 +215,15 @@ public:
 	LLRB();
 	~LLRB();
 
-
 	friend class iteratorLLRB<T>;
 	friend class const_iteratorLLRB<T>;
+
+
+	typedef typename T value_type;
+	typedef typename iteratorLLRB<T> iterator;
+	typedef typename const_iteratorLLRB<T> const_iterator;
+	typedef typename std::reverse_iterator<iteratorLLRB<T>> reverse_iterator;
+	typedef typename std::reverse_iterator<const_iteratorLLRB<T>> const_reverse_iterator;
 
 	iteratorLLRB<T> begin()
 	{
@@ -237,6 +245,25 @@ public:
 		return const_iteratorLLRB<T>(nullptr, root);
 	}
 
+	reverse_iterator rbegin()
+	{
+		return  reverse_iterator(iteratorLLRB<T>(nullptr, root));;
+	}
+
+	reverse_iterator rend()
+	{
+		return reverse_iterator(iteratorLLRB<T>(findMin(root), root));;
+	}
+
+	const_reverse_iterator crbegin()
+	{
+		return  const_reverse_iterator(const_iteratorLLRB<T>(nullptr, root));;
+	}
+
+	const_reverse_iterator crend()
+	{
+		return const_reverse_iterator(const_iteratorLLRB<T>(findMin(root), root));;
+	}
 
 	template<typename T>
 	void insert(T data)
@@ -245,13 +272,131 @@ public:
 		root->IsRed = false;
 	}
 
+	template<typename T>
+	iterator insert(iterator it, T data)
+	{
+		root = insert(root, data);
+		root->IsRed = false;
+		return find(data);
+	}
 
+	template<typename T>
+	void erase(T data)
+	{
+		root = erase(root, data);
+		if(root != nullptr)
+			root->IsRed = false;
+	}
+
+	template<typename T>
+	T search(T data)
+	{
+		node<T> temp = root;
+		while (temp != nullptr)
+		{
+			if (!(data > temp.data) && !(temp.data > data))
+			{
+				return temp.data;
+			}
+			if (data > temp.data)
+				temp = temp.Left;
+			else
+				temp = temp.Right;
+		}
+		return nullptr;
+	}
+
+
+	template<typename T>
+	iterator find(T data)
+	{
+		node<T>* temp = root;
+		while (temp != nullptr)
+		{
+			if (!(data > temp->data) && !(temp->data > data))
+			{
+				return iterator(temp, root);
+			}
+			if (data > temp->data)
+				temp = temp->Left;
+			else
+				temp = temp->Right;
+		}
+		return iterator(nullptr, root);;
+	}
+
+
+	//--------------------------------------------------------------BEGIN print tree on std::out ------------------------------------------------------------
+	friend ostream& operator<<(ostream& out, LLRB& tree)
+	{
+		postorder(out, tree.root, 0);
+		return out;
+	}
+
+	template<typename T>
+	friend void postorder(ostream& out, node<T>* p, int indent = 0)
+	{
+		if (p != nullptr) {
+			if (p->Right) {
+				postorder(out, p->Right, indent + 4);
+			}
+			if (indent) {
+				out << std::setw(indent) << ' ';
+			}
+			if (p->Right) out << " /\n" << std::setw(indent) << ' ';
+			out << p->data << "\n ";
+			if (p->Left) {
+				out << std::setw(indent) << ' ' << " \\\n";
+				postorder(out, p->Left, indent + 4);
+			}
+		}
+	}
+	//--------------------------------------------------------------END print tree on std::out ------------------------------------------------------------
+
+	template<typename T>
+	node<T>* deleteMin()
+	{
+		if (root != nullptr)
+		{
+			root = deleteMin(root);
+			if (root)
+				root->IsRed = false;
+		}
+	}
+
+	template<typename T>
+	static node<T>* findMin(node<T>* h)
+	{
+		if (root != nullptr)
+		{
+			node<T>* temp = h;
+			while (temp->Left)
+				temp = temp->Left;
+			return temp;
+		}
+	}
+
+	template<typename T>
+	static node<T>* findMax(node<T>* h)
+	{
+		if (root != nullptr)
+		{
+			node<T>* temp = h;
+			while (temp->Right)
+				temp = temp->Right;
+			return temp;
+		}
+	}
+
+	node<T>* root;
+private:
+	
 	template<typename T>
 	node<T>* rotateLeft(node<T>* a)
 	{
 		auto b = a->Right;
 
-		if(a->Right = b->Left)
+		if (a->Right = b->Left)
 			a->Right->Parent = a;
 
 		b->Left = a;
@@ -289,91 +434,6 @@ public:
 		h->Left->IsRed = !h->Left->IsRed;
 		h->Right->IsRed = !h->Right->IsRed;
 	}
-
-	template<typename T>
-	void erase(T data)
-	{
-		root = erase(root, data);
-		if(root != nullptr)
-			root->IsRed = false;
-	}
-
-	template<typename T>
-	T search(T data)
-	{
-		node<T> temp = root;
-		while (temp != nullptr)
-		{
-			if (!(data > temp.data) && !(temp.data > data))
-			{
-				return temp.data;
-			}
-			if (data > temp.data)
-				temp = temp.Left;
-			else
-				temp = temp.Right;
-		}
-		return nullptr;
-	}
-
-
-	//--------------------------------------------------------------BEGIN print tree on std::out ------------------------------------------------------------
-	friend ostream& operator<<(ostream& out, LLRB& tree)
-	{
-		postorder(out, tree.root, 0);
-		return out;
-	}
-
-	template<typename T>
-	friend void postorder(ostream& out, node<T>* p, int indent = 0)
-	{
-		if (p != nullptr) {
-			if (p->Right) {
-				postorder(out, p->Right, indent + 4);
-			}
-			if (indent) {
-				out << std::setw(indent) << ' ';
-			}
-			if (p->Right) out << " /\n" << std::setw(indent) << ' ';
-			out << p->data << "\n ";
-			if (p->Left) {
-				out << std::setw(indent) << ' ' << " \\\n";
-				postorder(out, p->Left, indent + 4);
-			}
-		}
-	}
-	//--------------------------------------------------------------END print tree on std::out ------------------------------------------------------------
-
-	template<typename T>
-	node<T>* deleteMin()
-	{
-		root = deleteMin(root);
-		if(root)
-			root->IsRed = false;
-	}
-
-	template<typename T>
-	static node<T>* findMin(node<T>* h)
-	{
-		node<T>* temp = h;
-		while (temp->Left)
-			temp = temp->Left;
-		return temp;
-	}
-
-	template<typename T>
-	static node<T>* findMax(node<T>* h)
-	{
-		node<T>* temp = h;
-		while (temp->Right)
-			temp = temp->Right;
-		return temp;
-	}
-
-	node<T>* root;
-private:
-	
-
 
 
 	template<typename T>
