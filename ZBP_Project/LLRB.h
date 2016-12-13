@@ -318,8 +318,7 @@ public:
 
 
 	//--------------------------------------------------------------BEGIN print tree on std::out ------------------------------------------------------------
-	template<typename T>
-	friend void postorder(ostream& out, node<T>* p, int indent = 0)
+	static void postorder(ostream& out, node<T>* p, int indent = 0)
 	{
 		if (p != nullptr) {
 			if (p->Right) {
