@@ -3,20 +3,15 @@
 #include <crtdbg.h>
 
 #include "LLRB.h"
+#include "setLLRB.h"
 
 #include <set>
-
-void TestInsert()
-{
-	LLRB<int> tree;
-
-	std::set<int> a;
-}
+#include <functional>
 
 
 int main()
 {
-	LLRB<int> tree;
+	setLLRB<int, greater<int>> tree, bar;
 
 	std::set<int> a;
 
@@ -85,8 +80,28 @@ int main()
 	for (int i = 0; i < 7; i++)
 		it++;
 
+
+
+
+
+
+	//std::insert_iterator<LLRB<int, greater<int>>> insert_it(tree, it);
+
+	//bar.insert(100);
+
+	//std::copy(bar.begin(), bar.end(), insert_it);
+
+
 	tree.insert(10);
 
+	auto r = tree.rbegin();
+	for (auto rit = tree.rbegin(); rit != tree.rend(); rit++)
+		cout << *rit << " ";
+
+	cout << "\n";
+
+	for (auto rit = tree.crbegin(); rit != tree.crend(); rit++)
+		cout << *rit << " ";
 
 	//std::cout << tree << "\n\n\n\n\n\n";
 
