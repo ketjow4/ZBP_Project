@@ -31,7 +31,7 @@ struct node
 	}
 };
 
-template<typename T, class Compare = less<T> >
+template<typename T, class Compare = less<T>, class Alloc = allocator<T> >
 class LLRB;
 
 template<typename T>
@@ -208,17 +208,17 @@ private:
 
 
 
-template<typename T, class Compare = less<T> >
+template<typename T, class Compare = less<T>, class Alloc = allocator<T> >
 class LLRB
 {
 public:
 
-	LLRB<T, Compare>::LLRB()
+	LLRB<T, Compare, Alloc>::LLRB()
 	{
 		root = nullptr;
 	}
 
-	LLRB<T, Compare>::~LLRB()
+	LLRB<T, Compare, Alloc>::~LLRB()
 	{
 		delete root;
 	}
@@ -378,10 +378,24 @@ public:
 		}
 	}
 
-	node<T>* root;
+	
 private:
 	Compare cmp;
+	Alloc al;
+	node<T>* root;
 
+
+	//template<typename T>
+	//node<T>* createNode(T data)
+	//{
+	//	node<T>* node = new node<T>();
+	//	node->data = al.allocate(1);
+	//}
+
+	//void destroyNode(node<T>* free)
+	//{
+
+	//}
 
 	template<typename T>
 	node<T>* rotateLeft(node<T>* a)
@@ -432,7 +446,7 @@ private:
 	node<T>* insert(node<T>* h, T data)
 	{
 		if (h == nullptr)
-			return new node<T>(data);
+			return  new node<T>(data);
 
 		if (cmp(data, h->data))
 		{
