@@ -23,5 +23,8 @@
     <ClInclude Include="LLRB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="setLLRB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
