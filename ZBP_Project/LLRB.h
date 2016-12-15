@@ -16,9 +16,9 @@ struct node
 	T data;
 	bool    IsRed;
 
-	node*   Left;
-	node*   Right;
-	node*	Parent;
+	node<T>*   Left;
+	node<T>*   Right;
+	node<T>*   Parent;
 
 	node(T data) : data(data), IsRed(true)
 	{
@@ -44,7 +44,7 @@ struct ItWrap
 };
 
 template<class T>		//, class _Base = _Iterator_base0
-class const_iteratorLLRB  
+class const_iteratorLLRB
 	: public iterator<bidirectional_iterator_tag,
 	typename ItWrap<T>::value_type,
 	typename ItWrap<T>::difference_type,
@@ -64,7 +64,7 @@ public:
 	const_iteratorLLRB(nodePtr ptr, nodePtr root) : ptr_(ptr), root(root) { }
 
 	self_type& operator++()	//preincrement
-	{ 
+	{
 		if (ptr_ == nullptr)
 			;					//end() iterator value
 		else if (ptr_->Right != nullptr)
@@ -89,7 +89,7 @@ public:
 		return (*this);
 	}
 	self_type operator++(int)	// postincrement
-	{ 
+	{
 		self_type i = *this;
 		++*this;
 		return (i);
@@ -106,7 +106,7 @@ public:
 	self_type& operator--()	// predecrement
 	{
 		if (ptr_ == nullptr)
-			ptr_ = LLRB<T>::findMax(root);					
+			ptr_ = LLRB<T>::findMax(root);
 		else if (ptr_->Left != nullptr)
 		{
 			ptr_ = ptr_->Left;
@@ -129,21 +129,21 @@ public:
 		return (*this);
 	}
 
-	reference operator*() const  
-	{ 
-		return ptr_->data; 
+	reference operator*() const
+	{
+		return ptr_->data;
 	}
-	pointer operator->() const 
-	{ 
-		return *ptr_->data; 
+	pointer operator->() const
+	{
+		return *ptr_->data;
 	}
-	bool operator==(const self_type& rhs) const 
-	{ 
-		return ptr_ == rhs.ptr_; 
+	bool operator==(const self_type& rhs) const
+	{
+		return ptr_ == rhs.ptr_;
 	}
-	bool operator!=(const self_type& rhs) const 
-	{ 
-		return ptr_ != rhs.ptr_; 
+	bool operator!=(const self_type& rhs) const
+	{
+		return ptr_ != rhs.ptr_;
 	}
 
 private:
@@ -153,7 +153,7 @@ private:
 
 
 
-template<class T>		
+template<class T>
 class iteratorLLRB : public const_iteratorLLRB<T>
 {
 public:
@@ -166,7 +166,7 @@ public:
 
 	typedef typename node<T>*  nodePtr;
 
-	iteratorLLRB(nodePtr ptr, nodePtr root) : base_type(ptr,root)   { }
+	iteratorLLRB(nodePtr ptr, nodePtr root) : base_type(ptr, root) { }
 
 	self_type& operator++()	//preincrement
 	{
@@ -194,12 +194,12 @@ public:
 		return (*this);
 	}
 
-	reference operator*() const 
+	reference operator*() const
 	{
-		return   ((reference)**(base_type*)this); 
+		return   ((reference)**(base_type*)this);
 	}
-	pointer operator->() const 
-	{ 
+	pointer operator->() const
+	{
 		return (pointer_traits<pointer>::pointer_to(**this));
 	}
 
@@ -220,12 +220,9 @@ public:
 
 	LLRB<T, Compare, Alloc>::~LLRB()
 	{
-		delete root;
+		if(root != nullptr)
+			destroyNode(root);
 	}
-
-
-	friend class iteratorLLRB<T>;
-	friend class const_iteratorLLRB<T>;
 
 
 	typedef typename T value_type;
@@ -236,12 +233,12 @@ public:
 
 	iteratorLLRB<T> begin()
 	{
-		return iteratorLLRB<T>(findMin(root),root);
+		return iteratorLLRB<T>(findMin(root), root);
 	}
 
 	iteratorLLRB<T> end()
 	{
-		return iteratorLLRB<T>(nullptr,root);
+		return iteratorLLRB<T>(nullptr, root);
 	}
 
 	const_iteratorLLRB<T> cbegin()
@@ -293,7 +290,7 @@ public:
 	void erase(T data)
 	{
 		root = erase(root, data);
-		if(root != nullptr)
+		if (root != nullptr)
 			root->IsRed = false;
 	}
 
@@ -304,16 +301,16 @@ public:
 		node<T>* temp = root;
 		while (temp != nullptr)
 		{
-			if (!(cmp(data, temp->data)) && !(cmp(temp->data ,data)))
+			if (!(cmp(data, temp->data)) && !(cmp(temp->data, data)))
 			{
 				return iterator(temp, root);
 			}
-			if (cmp(data ,temp->data))
+			if (cmp(data, temp->data))
 				temp = temp->Left;
 			else
 				temp = temp->Right;
 		}
-		return iterator(nullptr, root);;
+		return iterator(nullptr, root);
 	}
 
 
@@ -335,7 +332,7 @@ public:
 			}
 		}
 	}
-	
+
 	friend ostream& operator<<(ostream& out, LLRB& tree)
 	{
 		postorder(out, tree.root, 0);
@@ -378,24 +375,40 @@ public:
 		}
 	}
 
-	
+
 private:
 	Compare cmp;
 	Alloc al;
 	node<T>* root;
 
 
-	//template<typename T>
-	//node<T>* createNode(T data)
-	//{
-	//	node<T>* node = new node<T>();
-	//	node->data = al.allocate(1);
-	//}
+	template<typename T>
+	node<T>* createNode(T data)
+	{
+		//return new node<T>(data);
+		auto a = Alloc::rebind<node<T>>::other(al);
+		node<T>* temp = a.allocate(1);
+		try
+		{
+			a.construct(temp, data);
+		}
+		catch (...)
+		{
+			a.deallocate(temp, 1);
+			throw std::bad_alloc();
+		}
+		return temp;
+	}
 
-	//void destroyNode(node<T>* free)
-	//{
-
-	//}
+	void destroyNode(node<T>* free)
+	{
+		//delete free;
+		auto a = Alloc::rebind<node<T>>::other(al);
+		a.destroy(free->Left);
+		a.destroy(free->Right);
+		a.destroy(free->Parent);
+		a.deallocate(free, 1);
+	}
 
 	template<typename T>
 	node<T>* rotateLeft(node<T>* a)
@@ -446,7 +459,7 @@ private:
 	node<T>* insert(node<T>* h, T data)
 	{
 		if (h == nullptr)
-			return  new node<T>(data);
+			return  createNode(data);		//new node<T>(data);
 
 		if (cmp(data, h->data))
 		{
@@ -455,7 +468,6 @@ private:
 		}
 		else
 		{
-
 			h->Left = insert(h->Left, data);
 			h->Left->Parent = h;
 		}
@@ -472,7 +484,7 @@ private:
 	template<typename T>
 	node<T>* erase(node<T>* h, T data)
 	{
-		if (cmp(h->data,data))			//operator <
+		if (cmp(h->data, data))			//operator <
 		{
 			if (!IsRed(h->Left) && !IsRed(h->Left->Left))
 				h = moveRedLeft(h);
@@ -484,7 +496,7 @@ private:
 				h = rotateRight(h);
 			if (!(cmp(data, h->data)) && !(cmp(h->data, data)) && h->Right == nullptr)
 			{
-				delete h;
+				destroyNode(h);		//delete h;
 				return nullptr;
 			}
 			if (!IsRed(h->Right) && !IsRed(h->Right->Left))
@@ -504,7 +516,7 @@ private:
 	template<typename T>
 	node<T>* fixUp(node<T>* h)
 	{
-		if (IsRed(h->Right))	
+		if (IsRed(h->Right))
 			h = rotateLeft(h);
 		if (IsRed(h->Left) && IsRed(h->Left->Left))
 			h = rotateRight(h);
@@ -519,7 +531,7 @@ private:
 	{
 		if (h->Left == nullptr)
 		{
-			delete h;
+			destroyNode(h);	//delete h;
 			return nullptr;
 		}
 		if (!IsRed(h->Left) && !IsRed(h->Left->Left))
