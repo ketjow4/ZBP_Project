@@ -43,7 +43,7 @@ struct ItWrap
 	typedef typename const T & reference;
 };
 
-template<class T>		//, class _Base = _Iterator_base0
+template<class T>		
 class const_iteratorLLRB
 	: public iterator<bidirectional_iterator_tag,
 	typename ItWrap<T>::value_type,
@@ -218,12 +218,41 @@ public:
 		root = nullptr;
 	}
 
+	//TODO Add constructors
+	//template <class InputIterator>
+	//set(InputIterator first, InputIterator last, const key_compare& comp = key_compare(), const allocator_type& = allocator_type());
+	//set(const set& x);
+	//set(const set& x, const allocator_type& alloc);
+	//set(set&& x);
+	//set(set&& x, const allocator_type& alloc);
+	//set(initializer_list<value_type> il, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type());
+
+
 	LLRB<T, Compare, Alloc>::~LLRB()
 	{
-		if(root != nullptr)
-			destroyNode(root);
+		if (root != nullptr)
+			Clear();
 	}
 
+	//TODO implement this!
+	/*set& operator= (const set& x);
+	set& operator= (set&& x);
+	set& operator= (initializer_list<value_type> il);*/
+
+	
+	void Clear() noexcept			//fix this method to work faster!!!
+	{
+		do
+		{
+			auto _First = this->begin();
+			erase(*_First);
+		} while (this->begin() != this->end());
+	}
+
+	Alloc get_allocator() const noexcept
+	{
+		return al;
+	}
 
 	typedef typename T value_type;
 	typedef typename iteratorLLRB<T> iterator;
@@ -236,46 +265,58 @@ public:
 		return iteratorLLRB<T>(findMin(root), root);
 	}
 
-	iteratorLLRB<T> end()
+	//const_iterator begin() const noexcept;
+
+	iterator end()
 	{
-		return iteratorLLRB<T>(nullptr, root);
+		return iterator(nullptr, root);
 	}
 
-	const_iteratorLLRB<T> cbegin()
+	const_iterator cbegin() //const noexcept;
 	{
-		return const_iteratorLLRB<T>(findMin(root), root);
+		return const_iterator(findMin(root), root);
 	}
 
-	const_iteratorLLRB<T> cend()
+	const_iterator cend()
 	{
-		return const_iteratorLLRB<T>(nullptr, root);
+		return const_iterator(nullptr, root);
 	}
 
 	reverse_iterator rbegin()
 	{
-		return  reverse_iterator(iteratorLLRB<T>(nullptr, root));;
+		return  reverse_iterator(iterator(nullptr, root));;
 	}
 
 	reverse_iterator rend()
 	{
-		return reverse_iterator(iteratorLLRB<T>(findMin(root), root));;
+		return reverse_iterator(iterator(findMin(root), root));;
 	}
 
 	const_reverse_iterator crbegin()
 	{
-		return  const_reverse_iterator(const_iteratorLLRB<T>(nullptr, root));;
+		return  const_reverse_iterator(const_iterator(nullptr, root));;
 	}
 
 	const_reverse_iterator crend()
 	{
-		return const_reverse_iterator(const_iteratorLLRB<T>(findMin(root), root));;
+		return const_reverse_iterator(const_iterator(findMin(root), root));;
 	}
+
+
+
+	/*pair<iterator, bool> insert(const value_type& val);
+	pair<iterator, bool> insert(value_type&& val);
+	template <class InputIterator>
+	void insert(InputIterator first, InputIterator last);
+	void insert(initializer_list<value_type> il);*/
+
 
 	template<typename T>
 	void insert(T data)
 	{
 		root = insert(root, data);
 		root->IsRed = false;
+		size++;
 	}
 
 	template<typename T>
@@ -284,7 +325,21 @@ public:
 		root = insert(root, data);
 		root->IsRed = false;
 		return find(data);
+		size++;
 	}
+
+
+	/*template <class... Args>
+	pair<iterator, bool> emplace(Args&&... args);*/
+
+
+	/*iterator  erase(const_iterator position);
+	size_type erase(const value_type& val);
+	iterator  erase(const_iterator first, const_iterator last);*/
+
+
+	//key_compare key_comp() const;
+	//value_compare value_comp() const;
 
 	template<typename T>
 	void erase(T data)
@@ -292,8 +347,16 @@ public:
 		root = erase(root, data);
 		if (root != nullptr)
 			root->IsRed = false;
+		size--;
 	}
 
+	//TODO
+	//void swap(set& x);
+
+
+
+	/*const_iterator find(const value_type& val) const;
+	iterator       find(const value_type& val);*/
 
 	template<typename T>
 	iterator find(T data)
@@ -340,16 +403,7 @@ public:
 	}
 	//--------------------------------------------------------------END print tree on std::out ------------------------------------------------------------
 
-	template<typename T>
-	node<T>* deleteMin()
-	{
-		if (root != nullptr)
-		{
-			root = deleteMin(root);
-			if (root)
-				root->IsRed = false;
-		}
-	}
+	
 
 	template<typename T>
 	static node<T>* findMin(node<T>* h)
@@ -361,6 +415,7 @@ public:
 				temp = temp->Left;
 			return temp;
 		}
+		return nullptr;
 	}
 
 	template<typename T>
@@ -373,19 +428,48 @@ public:
 				temp = temp->Right;
 			return temp;
 		}
+		return nullptr;
 	}
 
+	unsigned int size() const noexcept
+	{
+		return size;
+	}
+
+	bool empty() const noexcept
+	{
+		if (size == 0)
+			return true;
+		else
+			return false;
+	}
+
+	//TODO
+	//size_type count(const value_type& val) const;
+
+	//TODO add this
+	//size_type max_size() const noexcept;
+
+/*
+	iterator lower_bound(const value_type& val);
+	const_iterator lower_bound(const value_type& val) const;*/
+
+	//iterator upper_bound(const value_type& val);
+	//const_iterator upper_bound(const value_type& val) const;
+
+	//pair<const_iterator, const_iterator> equal_range(const value_type& val) const;
+	//pair<iterator, iterator>             equal_range(const value_type& val);
 
 private:
 	Compare cmp;
 	Alloc al;
 	node<T>* root;
+	unsigned int size;
 
 
 	template<typename T>
 	node<T>* createNode(T data)
 	{
-		//return new node<T>(data);
 		auto a = Alloc::rebind<node<T>>::other(al);
 		node<T>* temp = a.allocate(1);
 		try
@@ -408,6 +492,18 @@ private:
 		a.destroy(free->Right);
 		a.destroy(free->Parent);
 		a.deallocate(free, 1);
+	}
+
+
+	template<typename T>
+	node<T>* deleteMin()
+	{
+		if (root != nullptr)
+		{
+			root = deleteMin(root);
+			if (root)
+				root->IsRed = false;
+		}
 	}
 
 	template<typename T>
