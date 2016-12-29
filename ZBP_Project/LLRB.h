@@ -146,9 +146,11 @@ public:
 		return ptr_ != rhs.ptr_;
 	}
 
-private:
+
 	nodePtr ptr_;
 	nodePtr root;
+private:
+	
 };
 
 
@@ -215,6 +217,7 @@ public:
 
 	LLRB<T, Compare, Alloc>::LLRB()
 	{
+		_size = 0;
 		root = nullptr;
 	}
 
@@ -240,7 +243,7 @@ public:
 	set& operator= (initializer_list<value_type> il);*/
 
 	
-	void Clear() noexcept			//fix this method to work faster!!!
+	void Clear() noexcept	//change to recursive deletion 
 	{
 		do
 		{
@@ -254,30 +257,30 @@ public:
 		return al;
 	}
 
+
+	typedef typename LLRB<T, Compare, Alloc> self_type;
 	typedef typename T value_type;
 	typedef typename iteratorLLRB<T> iterator;
 	typedef typename const_iteratorLLRB<T> const_iterator;
 	typedef typename std::reverse_iterator<iteratorLLRB<T>> reverse_iterator;
 	typedef typename std::reverse_iterator<const_iteratorLLRB<T>> const_reverse_iterator;
 
-	iteratorLLRB<T> begin()
+	iterator begin()
 	{
-		return iteratorLLRB<T>(findMin(root), root);
+		return iterator(findMin(root), root);
 	}
-
-	//const_iterator begin() const noexcept;
 
 	iterator end()
 	{
 		return iterator(nullptr, root);
 	}
 
-	const_iterator cbegin() //const noexcept;
+	const_iterator cbegin() const noexcept
 	{
 		return const_iterator(findMin(root), root);
 	}
 
-	const_iterator cend()
+	const_iterator cend() const noexcept
 	{
 		return const_iterator(nullptr, root);
 	}
@@ -292,12 +295,12 @@ public:
 		return reverse_iterator(iterator(findMin(root), root));;
 	}
 
-	const_reverse_iterator crbegin()
+	const_reverse_iterator crbegin() const noexcept
 	{
 		return  const_reverse_iterator(const_iterator(nullptr, root));;
 	}
 
-	const_reverse_iterator crend()
+	const_reverse_iterator crend() const noexcept
 	{
 		return const_reverse_iterator(const_iterator(findMin(root), root));;
 	}
@@ -316,7 +319,7 @@ public:
 	{
 		root = insert(root, data);
 		root->IsRed = false;
-		size++;
+		_size++;
 	}
 
 	template<typename T>
@@ -325,7 +328,7 @@ public:
 		root = insert(root, data);
 		root->IsRed = false;
 		return find(data);
-		size++;
+		_size++;
 	}
 
 
@@ -333,33 +336,96 @@ public:
 	pair<iterator, bool> emplace(Args&&... args);*/
 
 
-	/*iterator  erase(const_iterator position);
-	size_type erase(const value_type& val);
-	iterator  erase(const_iterator first, const_iterator last);*/
-
-
-	//key_compare key_comp() const;
-	//value_compare value_comp() const;
-
-	template<typename T>
-	void erase(T data)
+	iterator  erase(const_iterator position)		//test
 	{
-		root = erase(root, data);
+		root = erase(root, *position);
 		if (root != nullptr)
 			root->IsRed = false;
-		size--;
+		return position++;
+	}
+	unsigned long erase(const value_type& val)		//------------------should erase all values (multimap / multiset)---------------------------
+	{
+		//_Pairii _Where = equal_range(_Keyval);
+		//size_type _Num = _STD distance(_Where.first, _Where.second);
+		//erase(_Where.first, _Where.second);
+		//return (_Num);
+		root = erase(root, val);
+		if (root != nullptr)
+			root->IsRed = false;
+		_size--;
+		return _size;
+	}
+	iterator  erase(const_iterator first, const_iterator last)		//test but should work
+	{
+		if (first == begin() && last == end())
+		{	// erase all
+			clear();
+			return (begin());
+		}
+		else
+		{	// partial erase, one at a time
+			while (first != last)
+				erase(first++);
+			return (iterator(first.ptr_, root);
+		}
 	}
 
-	//TODO
-	//void swap(set& x);
+
+
+	Compare key_comp() const
+	{
+		return cmp;
+	}
+	
+	Compare value_comp() const
+	{
+		return cmp;
+	}
 
 
 
-	/*const_iterator find(const value_type& val) const;
-	iterator       find(const value_type& val);*/
+	
+	void swap(self_type& _Right)
+	{
+		if (this != &_Right)
+		{
+			std::swap(_GetAl(), _Right._GetAl());
+			//std::swap(_Myhead(), _Right._Myhead());
+			node<T>* h1 = _Myhead();
+			node<T>* h2 = _Right._Myhead();
+			node<T>* tmp = h1;
+			h1 = h2;
+			h2 = tmp;
+			_Sethead(h1);
+			_Right._Sethead(h2);
+			std::swap(_Mysize(), _Right._Mysize());
+			std::swap(_GetComp(), _Right._GetComp());
+		}
+	}
+
+
 
 	template<typename T>
-	iterator find(T data)
+	const_iterator find(const T& val) const
+	{
+		node<T>* temp = root;
+		while (temp != nullptr)
+		{
+			if (!(cmp(data, temp->data)) && !(cmp(temp->data, data)))
+			{
+				return const_iterator(temp, root);
+			}
+			if (cmp(data, temp->data))
+				temp = temp->Left;
+			else
+				temp = temp->Right;
+		}
+		return const_iterator(nullptr, root);
+	}
+
+
+	template<typename T>
+	iterator find(const T& data)
 	{
 		node<T>* temp = root;
 		while (temp != nullptr)
@@ -433,38 +499,86 @@ public:
 
 	unsigned int size() const noexcept
 	{
-		return size;
+		return _size;
 	}
 
 	bool empty() const noexcept
 	{
-		if (size == 0)
-			return true;
-		else
-			return false;
+		return (_size == 0)
 	}
 
 	//TODO
-	//size_type count(const value_type& val) const;
+	template<typename T>
+	unsigned int count(const T& val) const
+	{
+		//equal range
+	}
 
-	//TODO add this
-	//size_type max_size() const noexcept;
 
-/*
-	iterator lower_bound(const value_type& val);
-	const_iterator lower_bound(const value_type& val) const;*/
+	unsigned long max_size() const noexcept
+	{
+		return al.max_size();
+	}
 
-	//iterator upper_bound(const value_type& val);
-	//const_iterator upper_bound(const value_type& val) const;
 
-	//pair<const_iterator, const_iterator> equal_range(const value_type& val) const;
-	//pair<iterator, iterator>             equal_range(const value_type& val);
+	iterator lower_bound(const value_type& val)
+	{
+
+	}
+	const_iterator lower_bound(const value_type& val) const
+	{
+
+	}
+
+	iterator upper_bound(const value_type& val)
+	{
+
+	}
+	const_iterator upper_bound(const value_type& val) const
+	{
+
+	}
+
+	pair<const_iterator, const_iterator> equal_range(const value_type& val) const
+	{
+
+	}
+	pair<iterator, iterator> equal_range(const value_type& val)
+	{
+
+	}
+
+
+	node<T>* _Myhead()
+	{
+		return root;
+	}
+
+	void _Sethead(node<T>* ptr)
+	{
+		root = ptr;
+	}
+
+	unsigned int& _Mysize()
+	{
+		return _size;
+	}
+
+	Alloc& _GetAl()
+	{
+		return al;
+	}
+
+	Compare& _GetComp()
+	{
+		return cmp;
+	}
 
 private:
 	Compare cmp;
 	Alloc al;
 	node<T>* root;
-	unsigned int size;
+	unsigned int _size;
 
 
 	template<typename T>
