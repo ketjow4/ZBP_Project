@@ -31,7 +31,7 @@ struct node
 	}
 };
 
-template<typename T, class Compare = less<T>, class Alloc = allocator<T> >
+template<typename T, class Compare, class Alloc, bool m >
 class LLRB;
 
 template<typename T>
@@ -43,7 +43,7 @@ struct ItWrap
 	typedef typename const T & reference;
 };
 
-template<class T>		
+template<class T, class Compare, class Alloc, bool m>
 class const_iteratorLLRB
 	: public iterator<bidirectional_iterator_tag,
 	typename ItWrap<T>::value_type,
@@ -52,7 +52,7 @@ class const_iteratorLLRB
 	typename ItWrap<T>::reference>
 {
 public:
-	typedef  const_iteratorLLRB<T> self_type;
+	typedef  const_iteratorLLRB<T,Compare,Alloc,m> self_type;
 	typedef bidirectional_iterator_tag iterator_category;
 
 	typedef typename int difference_type;
@@ -106,7 +106,7 @@ public:
 	self_type& operator--()	// predecrement
 	{
 		if (ptr_ == nullptr)
-			ptr_ = LLRB<T>::findMax(root);
+			ptr_ = LLRB<T,Compare,Alloc,m>findMax(root);
 		else if (ptr_->Left != nullptr)
 		{
 			ptr_ = ptr_->Left;
@@ -148,19 +148,18 @@ public:
 
 
 	nodePtr ptr_;
-	nodePtr root;
 private:
-	
+	nodePtr root;
 };
 
 
 
-template<class T>
-class iteratorLLRB : public const_iteratorLLRB<T>
+template<class T, class Compare, class Alloc, bool m>
+class iteratorLLRB : public const_iteratorLLRB<T,Compare,Alloc,m>
 {
 public:
-	typedef  iteratorLLRB<T> self_type;
-	typedef  const_iteratorLLRB<T> base_type;
+	typedef  iteratorLLRB<T, Compare, Alloc, m> self_type;
+	typedef  const_iteratorLLRB<T, Compare, Alloc, m> base_type;
 	typedef bidirectional_iterator_tag iterator_category;
 
 	typedef typename int difference_type;
@@ -210,37 +209,92 @@ private:
 
 
 
-template<typename T, class Compare = less<T>, class Alloc = allocator<T> >
+template<class T,  class Compare, class Alloc, bool m>	
 class LLRB
 {
 public:
 
-	LLRB<T, Compare, Alloc>::LLRB()
+	typedef typename LLRB<T, Compare,Alloc,m> self_type;
+	typedef typename T value_type;
+	typedef typename iteratorLLRB<T, Compare, Alloc, m> iterator;
+	typedef typename const_iteratorLLRB<T, Compare, Alloc, m> const_iterator;
+	typedef typename std::reverse_iterator<iteratorLLRB<T, Compare, Alloc, m>> reverse_iterator;
+	typedef typename std::reverse_iterator<const_iteratorLLRB<T, Compare, Alloc, m>> const_reverse_iterator;
+
+
+	self_type::LLRB()
 	{
 		_size = 0;
 		root = nullptr;
 	}
 
-	//TODO Add constructors
-	//template <class InputIterator>
-	//set(InputIterator first, InputIterator last, const key_compare& comp = key_compare(), const allocator_type& = allocator_type());
-	//set(const set& x);
-	//set(const set& x, const allocator_type& alloc);
-	//set(set&& x);
-	//set(set&& x, const allocator_type& alloc);
-	//set(initializer_list<value_type> il, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type());
+	template <class InputIterator>
+	LLRB(InputIterator first, InputIterator last, const Compare& comp = cmp, const Alloc&   allo = al)
+	{
+		this->insert(first, last);
+	}
+
+	LLRB(const self_type& x)
+	{
+		this = x;
+	}
 
 
-	LLRB<T, Compare, Alloc>::~LLRB()
+	LLRB(const self_type& x, const Alloc&  allo = al)
+	{
+		//operator=(x);
+		al = allo;
+	}
+	
+	LLRB(self_type&& x)
+	{
+		operator=(x);
+	}
+	
+	LLRB(self_type&& x, const Alloc&  allo = al)
+	{
+		operator=(x);
+		al = allo;
+	}
+	
+	LLRB(initializer_list<value_type> il, const Compare& comp = cmp, const Alloc&  allo = al)
+	{
+		this->insert(il);
+		cmp = comp;
+		al = allo;
+	}
+
+
+	self_type::~LLRB()
 	{
 		if (root != nullptr)
 			Clear();
 	}
-
-	//TODO implement this!
-	/*set& operator= (const set& x);
-	set& operator= (set&& x);
-	set& operator= (initializer_list<value_type> il);*/
+	
+	self_type& operator= (const self_type& _Right)
+	{
+		if (this != &_Right) // different, move it
+		{
+			clear();
+			swap();
+		}
+		return (*this);
+	}
+	self_type& operator= (self_type&& _Right)
+	{
+		if (this != &_Right) // different, move it
+		{	
+			clear();
+			swap();
+		}
+		return (*this);
+	}
+	self_type& operator= (initializer_list<value_type> il)
+	{
+		this->clear();
+		this->insert(il);
+		return (*this);
+	}
 
 	
 	void Clear() noexcept	//change to recursive deletion 
@@ -257,13 +311,6 @@ public:
 		return al;
 	}
 
-
-	typedef typename LLRB<T, Compare, Alloc> self_type;
-	typedef typename T value_type;
-	typedef typename iteratorLLRB<T> iterator;
-	typedef typename const_iteratorLLRB<T> const_iterator;
-	typedef typename std::reverse_iterator<iteratorLLRB<T>> reverse_iterator;
-	typedef typename std::reverse_iterator<const_iteratorLLRB<T>> const_reverse_iterator;
 
 	iterator begin()
 	{
@@ -307,66 +354,74 @@ public:
 
 
 
-	/*pair<iterator, bool> insert(const value_type& val);
-	pair<iterator, bool> insert(value_type&& val);
+	pair<iterator, bool> insert(const value_type& val)
+	{
+		root = insert(root, val);
+		auto it = find(val);
+		root->IsRed = false;
+		_size++;
+		return std::pair<iterator, bool>(it, it != end());
+	}
+
+	pair<iterator, bool> insert(value_type&& val)
+	{
+		root = insert(root, val);
+		iterator it = find(val);
+		root->IsRed = false;
+		_size++;
+		return std::pair<iterator, bool>(it, it != end());
+	}
+
 	template <class InputIterator>
-	void insert(InputIterator first, InputIterator last);
-	void insert(initializer_list<value_type> il);*/
-
-
-	template<typename T>
-	void insert(T data)
+	void insert(InputIterator first, InputIterator last)
 	{
-		root = insert(root, data);
-		root->IsRed = false;
-		_size++;
+		for (; first != last; first++)
+			insert(*first);
 	}
-
-	template<typename T>
-	iterator insert(iterator it, T data)
+	void insert(initializer_list<value_type> il)
 	{
-		root = insert(root, data);
-		root->IsRed = false;
-		return find(data);
-		_size++;
+		insert(il.begin(), il.end());
 	}
 
 
-	/*template <class... Args>
-	pair<iterator, bool> emplace(Args&&... args);*/
+	template <class... Args>
+	pair<iterator, bool> emplace(Args&&... args)		//test!!!!
+	{
+		node<T>* _Newnode = createNode(std::forward<_Valty>(_Val)...);
+		insert(root,_Newnode->data,_Newnode);
+		return std::make_pair<iterator,bool>(iterator(_Newnode,root), find(_Newnode->data) != end())
+	}
 
 
-	iterator  erase(const_iterator position)		//test
+	iterator erase(const_iterator position)		//test
 	{
 		root = erase(root, *position);
-		if (root != nullptr)
-			root->IsRed = false;
-		return position++;
-	}
-	unsigned long erase(const value_type& val)		//------------------should erase all values (multimap / multiset)---------------------------
-	{
-		//_Pairii _Where = equal_range(_Keyval);
-		//size_type _Num = _STD distance(_Where.first, _Where.second);
-		//erase(_Where.first, _Where.second);
-		//return (_Num);
-		root = erase(root, val);
-		if (root != nullptr)
-			root->IsRed = false;
 		_size--;
-		return _size;
+		if (root != nullptr)
+			root->IsRed = false;
+		return iterator(++position.ptr_, root);
+	}
+	
+	unsigned long erase(const value_type& val)		//test
+	{
+		auto _Where = equal_range(val);
+		unsigned long _Num =  std::distance(_Where.first, _Where.second);
+		erase(_Where.first, _Where.second);
+		_size -= _Num;
+		return (_Num);
 	}
 	iterator  erase(const_iterator first, const_iterator last)		//test but should work
 	{
 		if (first == begin() && last == end())
 		{	// erase all
-			clear();
+			Clear();
 			return (begin());
 		}
 		else
 		{	// partial erase, one at a time
 			while (first != last)
 				erase(first++);
-			return (iterator(first.ptr_, root);
+			return (iterator(first.ptr_, root));
 		}
 	}
 
@@ -381,8 +436,6 @@ public:
 	{
 		return cmp;
 	}
-
-
 
 	
 	void swap(self_type& _Right)
@@ -402,7 +455,6 @@ public:
 			std::swap(_GetComp(), _Right._GetComp());
 		}
 	}
-
 
 
 	template<typename T>
@@ -507,13 +559,13 @@ public:
 		return (_size == 0)
 	}
 
-	//TODO
+	
 	template<typename T>
-	unsigned int count(const T& val) const
+	unsigned long count(const T& val) const
 	{
-		//equal range
+		auto _Ans = equal_range(val);
+		return (std::distance(_Ans.first, _Ans.second));
 	}
-
 
 	unsigned long max_size() const noexcept
 	{
@@ -523,29 +575,33 @@ public:
 
 	iterator lower_bound(const value_type& val)
 	{
-
+		return iterator(_Lbound(val), root);
 	}
 	const_iterator lower_bound(const value_type& val) const
 	{
-
+		return const_iterator(_Lbound(val), root);
 	}
 
 	iterator upper_bound(const value_type& val)
 	{
-
+		return iterator(_Ubound(val), root);
 	}
 	const_iterator upper_bound(const value_type& val) const
 	{
-
+		return const_iterator(_Ubound(val), root);
 	}
 
 	pair<const_iterator, const_iterator> equal_range(const value_type& val) const
 	{
-
+		node<T>* Hi = _Ubound(val);
+		node<T>* Lo = _Lbound(val);
+		return make_pair<const_iterator, const_iterator>(const_iterator(Lo, root), const_iterator(Hi, root));
 	}
 	pair<iterator, iterator> equal_range(const value_type& val)
 	{
-
+		node<T>* Hi = _Ubound(val);
+		node<T>* Lo = _Lbound(val);
+		return make_pair<iterator, iterator>(iterator(Lo, root), iterator(Hi, root));
 	}
 
 
@@ -581,6 +637,44 @@ private:
 	unsigned int _size;
 
 
+
+	template<class T>
+	node<T>* _Lbound(const T& _Keyval)  // find leftmost node not less than _Keyval
+	{	
+		node<T>* tmp = root;
+		node<T>* _Wherenode = _Myhead();	// end() if search fails
+
+		while (!tmp)
+			if (cmp(tmp->data, _Keyval))
+				tmp =  tmp->Right;	// descend right subtree
+			else
+			{	// tmp not less than _Keyval, remember it
+				_Wherenode = tmp;
+				tmp = tmp->Left;	// descend left subtree
+			}
+
+		return (_Wherenode);	// return best remembered candidate
+	}
+
+	template<class T>
+	node<T>* _Ubound(const T& _Keyval)  // find leftmost node greater than _Keyval
+	{	
+		node<T>* tmp = root;
+		node<T>* _Wherenode = _Myhead();	// end() if search fails
+
+		while (!tmp)
+			if (cmp(_Keyval, tmp->data))
+			{	// _Pnode greater than _Keyval, remember it
+				_Wherenode = tmp;
+				tmp = tmp->Left;	// descend left subtree
+			}
+			else
+				tmp = tmp->Right;	// descend right subtree
+
+		return (_Wherenode);	// return best remembered candidate
+	}
+
+
 	template<typename T>
 	node<T>* createNode(T data)
 	{
@@ -596,6 +690,36 @@ private:
 			throw std::bad_alloc();
 		}
 		return temp;
+	}
+
+	template<class... _Valty>
+	node<T>* createNode(_Valty&&... _Val)
+	{	// allocate a node with defaults and set links and value
+		auto a = Alloc::rebind<node<T>>::other(al);
+		node<T>* temp = a.allocate(1);
+
+		try {
+			a.construct(std::addressof(temp->Left, nullptr));
+			a.construct(std::addressof(temp->Right, nullptr));
+			a.construct(std::addressof(temp->Parent, nullptr));
+		}
+		catch(...)
+		{
+			a.deallocate(temp, 1);
+			throw std::bad_alloc();
+		}
+		temp->IsRed = true;
+
+		try
+		{
+			a.construct(std::addressof(temp->data),std::forward<_Valty>(_Val)...);
+		}
+		catch(...)
+		{
+			a.deallocate(temp, 1);
+			throw std::bad_alloc();		
+		}
+		return (temp);
 	}
 
 	void destroyNode(node<T>* free)
@@ -670,6 +794,32 @@ private:
 	{
 		if (h == nullptr)
 			return  createNode(data);		//new node<T>(data);
+
+		if (cmp(data, h->data))
+		{
+			h->Right = insert(h->Right, data);
+			h->Right->Parent = h;
+		}
+		else
+		{
+			h->Left = insert(h->Left, data);
+			h->Left->Parent = h;
+		}
+		if (IsRed(h->Right) && !IsRed(h->Left))
+			h = rotateLeft(h);
+		if (IsRed(h->Left) && IsRed(h->Left->Left))
+			h = rotateRight(h);
+		if (IsRed(h->Left) && IsRed(h->Right))
+			flipColors(h);
+
+		return h;
+	}
+
+	template<typename T>
+	node<T>* insert(node<T>* h, T data, node<T>* node)
+	{
+		if (h == nullptr)
+			return  node;
 
 		if (cmp(data, h->data))
 		{

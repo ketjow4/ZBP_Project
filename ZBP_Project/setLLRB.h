@@ -4,10 +4,12 @@
 #include "LLRB.h"
 
 
+
 template<class T,class _Pr = less<T>, class _Alloc = allocator<T> >
 	class setLLRB
-	: public LLRB<T, _Pr, _Alloc>
+	: public LLRB<T, _Pr, _Alloc, false>
 {
+		
 
 };
 
