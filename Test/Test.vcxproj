@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClCompile Include="ConstructorTest.cpp" />
     <ClCompile Include="gtest-all.cc" />
+    <ClCompile Include="ItertatorsTest.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
