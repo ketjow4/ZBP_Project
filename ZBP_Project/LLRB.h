@@ -31,7 +31,7 @@ struct node
 	}
 };
 
-template<typename T, class Compare, class Alloc, bool multi >
+template<class T, class key_type, class Compare, class Alloc, bool multi>
 class LLRB;
 
 template<typename T>
@@ -106,7 +106,7 @@ public:
 	self_type& operator--()	// predecrement
 	{
 		if (ptr_ == nullptr)
-			ptr_ = LLRB<T,Compare,Alloc,multi>::findMax(root);
+			ptr_ = LLRB<T,T,Compare,Alloc,multi>::findMax(root);
 		else if (ptr_->Left != nullptr)
 		{
 			ptr_ = ptr_->Left;
@@ -209,12 +209,12 @@ private:
 
 
 
-template<class T,  class Compare, class Alloc, bool multi>	
+template<class T,class key_type,  class Compare, class Alloc, bool multi>	
 class LLRB
 {
 public:
 
-	typedef typename LLRB<T, Compare,Alloc,multi> self_type;
+	typedef typename LLRB<T, key_type, Compare,Alloc,multi> self_type;
 	typedef typename T value_type;
 	typedef typename iteratorLLRB<T, Compare, Alloc, multi> iterator;
 	typedef typename const_iteratorLLRB<T, Compare, Alloc, multi> const_iterator;
@@ -357,7 +357,7 @@ public:
 	pair<iterator, bool> insert(const value_type& val)
 	{
 		auto it = find(val);
-		if(multi == false && it == end())
+		if(multi == false && it != end())
 			return std::pair<iterator, bool>(it, false);
 		root = insert(root, val);
 		root->IsRed = false;
@@ -368,7 +368,7 @@ public:
 	pair<iterator, bool> insert(value_type&& val)
 	{
 		auto it = find(val);			//if not in set it == end()
-		if (multi == false && it == end())
+		if (multi == false && it != end())
 			return std::pair<iterator, bool>(it, false);
 		root = insert(root, val);
 		root->IsRed = false;
@@ -486,11 +486,11 @@ public:
 		node<T>* temp = root;
 		while (temp != nullptr)
 		{
-			if (!(cmp(data, temp->data)) && !(cmp(temp->data, data)))
+			if (!(cmp(_Kfn(data), _Kfn(temp->data))) && !(cmp(_Kfn(temp->data), _Kfn(data))))
 			{
 				return iterator(temp, root);
 			}
-			if (cmp(data, temp->data))
+			if (cmp(_Kfn(data), _Kfn(temp->data)))
 				temp = temp->Left;
 			else
 				temp = temp->Right;
@@ -649,7 +649,7 @@ private:
 		node<T>* _Wherenode = _Myhead();	// end() if search fails
 
 		while (!tmp)
-			if (cmp(tmp->data, _Keyval))
+			if (cmp(_Kfn(tmp->data), _Kfn(_Keyval)))
 				tmp =  tmp->Right;	// descend right subtree
 			else
 			{	// tmp not less than _Keyval, remember it
@@ -667,7 +667,7 @@ private:
 		node<T>* _Wherenode = _Myhead();	// end() if search fails
 
 		while (!tmp)
-			if (cmp(_Keyval, tmp->data))
+			if (cmp(_Kfn(_Keyval), _Kfn(tmp->data)))
 			{	// _Pnode greater than _Keyval, remember it
 				_Wherenode = tmp;
 				tmp = tmp->Left;	// descend left subtree
@@ -799,7 +799,7 @@ private:
 		if (h == nullptr)
 			return  createNode(data);		//new node<T>(data);
 
-		if (cmp(data, h->data))
+		if (cmp(_Kfn(data), _Kfn(h->data)))
 		{
 			h->Right = insert(h->Right, data);
 			h->Right->Parent = h;
@@ -848,7 +848,7 @@ private:
 	template<typename T>
 	node<T>* erase(node<T>* h, T data)
 	{
-		if (cmp(h->data, data))			//operator <
+		if (cmp(_Kfn(h->data), _Kfn(data)))			//operator <
 		{
 			if (!IsRed(h->Left) && !IsRed(h->Left->Left))
 				h = moveRedLeft(h);
@@ -858,14 +858,14 @@ private:
 		{
 			if (IsRed(h->Left))
 				h = rotateRight(h);
-			if (!(cmp(data, h->data)) && !(cmp(h->data, data)) && h->Right == nullptr)
+			if (!(cmp(_Kfn(data), _Kfn(h->data))) && !(cmp(_Kfn(h->data), _Kfn(data))) && h->Right == nullptr)
 			{
 				destroyNode(h);		//delete h;
 				return nullptr;
 			}
 			if (!IsRed(h->Right) && !IsRed(h->Right->Left))
 				h = moveRedRight(h);
-			if (!(cmp(data, h->data)) && !(cmp(h->data, data)))
+			if (!(cmp(_Kfn(data), _Kfn(h->data))) && !(cmp(_Kfn(h->data), _Kfn(data))))
 			{
 				h->data = findMin(h->Right)->data;
 				h->Right = deleteMin(h->Right);
@@ -939,6 +939,18 @@ private:
 		else
 			return h->IsRed;
 	}
+
+
+
+
+	virtual  key_type _Kfn(value_type _Val) = 0;
+
+
+	//const key_type& _Key(_Nodeptr _Pnode) const
+	//{	// return reference to key in node
+	//	return ((const key_type&)this->_Kfn(this->_Myval(_Pnode)));
+	//}
+
 };
 
 #endif // !LLRB_H

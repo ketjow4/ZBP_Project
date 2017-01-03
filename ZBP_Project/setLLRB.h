@@ -5,21 +5,33 @@
 
 
 
+
+
+
 template<class T,class _Pr = less<T>, class _Alloc = allocator<T> >
 	class setLLRB
-	: public LLRB<T, _Pr, _Alloc, false>
+	: public LLRB<T,T, _Pr, _Alloc, false>
 {
-		
+		typedef typename T value_type;
 
+		 T _Kfn( value_type _Val) 
+		{
+			return _Val;
+		}
 };
 
 
 
 template<class T, class _Pr = less<T>, class _Alloc = allocator<T> >
 class multisetLLRB
-	: public LLRB<T, _Pr, _Alloc, true>
+	: public LLRB<T,T, _Pr, _Alloc, true>
 {
+	typedef typename T value_type;
 
+	 T _Kfn( value_type _Val) 
+	{
+		return _Val;
+	}
 
 };
 
