@@ -634,11 +634,77 @@ public:
 		return cmp;
 	}
 
+
+
+
+
+
+
+
+	template<typename T>
+	node<T>* insert(node<T>* h, T data)
+	{
+		if (h == nullptr)
+			return  createNode(data);		//new node<T>(data);
+
+		if (cmp(_Kfn(data), _Kfn(h->data)))
+		{
+			h->Right = insert(h->Right, data);
+			h->Right->Parent = h;
+		}
+		else
+		{
+			h->Left = insert(h->Left, data);
+			h->Left->Parent = h;
+		}
+		if (IsRed(h->Right) && !IsRed(h->Left))
+			h = rotateLeft(h);
+		if (IsRed(h->Left) && IsRed(h->Left->Left))
+			h = rotateRight(h);
+		if (IsRed(h->Left) && IsRed(h->Right))
+			flipColors(h);
+
+		return h;
+	}
+
+	template<typename T>
+	node<T>* insert(node<T>* h, T data, node<T>* node)
+	{
+		if (h == nullptr)
+			return  node;
+
+		if (cmp(data, h->data))
+		{
+			h->Right = insert(h->Right, data);
+			h->Right->Parent = h;
+		}
+		else
+		{
+			h->Left = insert(h->Left, data);
+			h->Left->Parent = h;
+		}
+		if (IsRed(h->Right) && !IsRed(h->Left))
+			h = rotateLeft(h);
+		if (IsRed(h->Left) && IsRed(h->Left->Left))
+			h = rotateRight(h);
+		if (IsRed(h->Left) && IsRed(h->Right))
+			flipColors(h);
+
+		return h;
+	}
+
+
+
+
+
+
+	unsigned int _size;
+
 private:
 	Compare cmp;
 	Alloc al;
 	node<T>* root;
-	unsigned int _size;
+
 
 
 
@@ -792,58 +858,6 @@ private:
 		h->Right->IsRed = !h->Right->IsRed;
 	}
 
-
-	template<typename T>
-	node<T>* insert(node<T>* h, T data)
-	{
-		if (h == nullptr)
-			return  createNode(data);		//new node<T>(data);
-
-		if (cmp(_Kfn(data), _Kfn(h->data)))
-		{
-			h->Right = insert(h->Right, data);
-			h->Right->Parent = h;
-		}
-		else
-		{
-			h->Left = insert(h->Left, data);
-			h->Left->Parent = h;
-		}
-		if (IsRed(h->Right) && !IsRed(h->Left))
-			h = rotateLeft(h);
-		if (IsRed(h->Left) && IsRed(h->Left->Left))
-			h = rotateRight(h);
-		if (IsRed(h->Left) && IsRed(h->Right))
-			flipColors(h);
-
-		return h;
-	}
-
-	template<typename T>
-	node<T>* insert(node<T>* h, T data, node<T>* node)
-	{
-		if (h == nullptr)
-			return  node;
-
-		if (cmp(data, h->data))
-		{
-			h->Right = insert(h->Right, data);
-			h->Right->Parent = h;
-		}
-		else
-		{
-			h->Left = insert(h->Left, data);
-			h->Left->Parent = h;
-		}
-		if (IsRed(h->Right) && !IsRed(h->Left))
-			h = rotateLeft(h);
-		if (IsRed(h->Left) && IsRed(h->Left->Left))
-			h = rotateRight(h);
-		if (IsRed(h->Left) && IsRed(h->Right))
-			flipColors(h);
-
-		return h;
-	}
 
 	template<typename T>
 	node<T>* erase(node<T>* h, T data)
