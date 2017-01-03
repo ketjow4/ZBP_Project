@@ -31,7 +31,7 @@ struct node
 	}
 };
 
-template<typename T, class Compare, class Alloc, bool m >
+template<typename T, class Compare, class Alloc, bool multi >
 class LLRB;
 
 template<typename T>
@@ -43,7 +43,7 @@ struct ItWrap
 	typedef typename const T & reference;
 };
 
-template<class T, class Compare, class Alloc, bool m>
+template<class T, class Compare, class Alloc, bool multi>
 class const_iteratorLLRB
 	: public iterator<bidirectional_iterator_tag,
 	typename ItWrap<T>::value_type,
@@ -52,7 +52,7 @@ class const_iteratorLLRB
 	typename ItWrap<T>::reference>
 {
 public:
-	typedef  const_iteratorLLRB<T,Compare,Alloc,m> self_type;
+	typedef  const_iteratorLLRB<T,Compare,Alloc,multi> self_type;
 	typedef bidirectional_iterator_tag iterator_category;
 
 	typedef typename int difference_type;
@@ -106,7 +106,7 @@ public:
 	self_type& operator--()	// predecrement
 	{
 		if (ptr_ == nullptr)
-			ptr_ = LLRB<T,Compare,Alloc,m>findMax(root);
+			ptr_ = LLRB<T,Compare,Alloc,multi>::findMax(root);
 		else if (ptr_->Left != nullptr)
 		{
 			ptr_ = ptr_->Left;
@@ -154,12 +154,12 @@ private:
 
 
 
-template<class T, class Compare, class Alloc, bool m>
-class iteratorLLRB : public const_iteratorLLRB<T,Compare,Alloc,m>
+template<class T, class Compare, class Alloc, bool multi>
+class iteratorLLRB : public const_iteratorLLRB<T,Compare,Alloc,multi>
 {
 public:
-	typedef  iteratorLLRB<T, Compare, Alloc, m> self_type;
-	typedef  const_iteratorLLRB<T, Compare, Alloc, m> base_type;
+	typedef  iteratorLLRB<T, Compare, Alloc, multi> self_type;
+	typedef  const_iteratorLLRB<T, Compare, Alloc, multi> base_type;
 	typedef bidirectional_iterator_tag iterator_category;
 
 	typedef typename int difference_type;
@@ -209,17 +209,17 @@ private:
 
 
 
-template<class T,  class Compare, class Alloc, bool m>	
+template<class T,  class Compare, class Alloc, bool multi>	
 class LLRB
 {
 public:
 
-	typedef typename LLRB<T, Compare,Alloc,m> self_type;
+	typedef typename LLRB<T, Compare,Alloc,multi> self_type;
 	typedef typename T value_type;
-	typedef typename iteratorLLRB<T, Compare, Alloc, m> iterator;
-	typedef typename const_iteratorLLRB<T, Compare, Alloc, m> const_iterator;
-	typedef typename std::reverse_iterator<iteratorLLRB<T, Compare, Alloc, m>> reverse_iterator;
-	typedef typename std::reverse_iterator<const_iteratorLLRB<T, Compare, Alloc, m>> const_reverse_iterator;
+	typedef typename iteratorLLRB<T, Compare, Alloc, multi> iterator;
+	typedef typename const_iteratorLLRB<T, Compare, Alloc, multi> const_iterator;
+	typedef typename std::reverse_iterator<iteratorLLRB<T, Compare, Alloc, multi>> reverse_iterator;
+	typedef typename std::reverse_iterator<const_iteratorLLRB<T, Compare, Alloc, multi>> const_reverse_iterator;
 
 
 	self_type::LLRB()
@@ -356,8 +356,10 @@ public:
 
 	pair<iterator, bool> insert(const value_type& val)
 	{
-		root = insert(root, val);
 		auto it = find(val);
+		if(multi == false && it == end())
+			return std::pair<iterator, bool>(it, false);
+		root = insert(root, val);
 		root->IsRed = false;
 		_size++;
 		return std::pair<iterator, bool>(it, it != end());
@@ -365,8 +367,10 @@ public:
 
 	pair<iterator, bool> insert(value_type&& val)
 	{
+		auto it = find(val);			//if not in set it == end()
+		if (multi == false && it == end())
+			return std::pair<iterator, bool>(it, false);
 		root = insert(root, val);
-		iterator it = find(val);
 		root->IsRed = false;
 		_size++;
 		return std::pair<iterator, bool>(it, it != end());

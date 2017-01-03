@@ -14,4 +14,14 @@ template<class T,class _Pr = less<T>, class _Alloc = allocator<T> >
 };
 
 
+
+template<class T, class _Pr = less<T>, class _Alloc = allocator<T> >
+class multisetLLRB
+	: public LLRB<T, _Pr, _Alloc, true>
+{
+
+
+};
+
+
 #endif
