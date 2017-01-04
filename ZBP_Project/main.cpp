@@ -4,6 +4,7 @@
 
 #include "LLRB.h"
 #include "setLLRB.h"
+#include "mapLLRB.h"
 
 #include <set>
 #include <functional>
@@ -11,17 +12,33 @@
 
 #include <map>
 
-
+//TODO 
+//- fix iterators returned by insert functions in case of really inserting some data.
 
 int main()
 {
-	setLLRB<int, greater<int>> tree, bar;
+	mapLLRB<int, double> xyz; 
 
-	multisetLLRB<int, greater<int>> tree2;
+	//TODO fix operator= to get proper value into the map
+	xyz[1] = 30.0f;
+
+	/*xyz.insert(std::pair<int, int>(1, 30));
+	xyz.insert(std::pair<int, int>(1, 40));
+	xyz.insert(std::pair<int, int>(3, 30));*/
+
+
+	setLLRB<int> tree, bar;
+
+	multisetLLRB<int> tree2;
 
 	set<int> abcabc;
 
 	map<int, int> mapa;
+
+	mapa[1] = 2;
+	mapa[1] = 3;
+	mapa[1] = 4;
+	mapa[2] = 5;
 
 	auto dsadasdas = tree.max_size();
 
@@ -59,7 +76,7 @@ int main()
 		it++;
 
 
-	setLLRB<int, greater<int>>::const_iterator cit = tree.find(6);
+	setLLRB<int>::const_iterator cit = tree.find(6);
 	auto cit2 = tree.find(6);
 
 	{
@@ -81,14 +98,14 @@ int main()
 
 	//tree.insert(10);
 
-	auto r = tree.rbegin();
+	/*auto r = tree.rbegin();
 	for (auto rit = tree.rbegin(); rit != tree.rend(); rit++)
-		cout << *rit << " ";
+		cout << *rit << " ";*/
 
 	cout << "\n";
 
-	for (auto rit = tree.crbegin(); rit != tree.crend(); rit++)
-		cout << *rit << " ";
+	/*for (auto rit = tree.crbegin(); rit != tree.crend(); rit++)
+		cout << *rit << " ";*/
 
 	//std::cout << tree << "\n\n\n\n\n\n";
 
@@ -132,47 +149,3 @@ int main()
 
 	return 0;
 }
-
-
-
-
-
-//std::set<int> a;
-//
-//a.insert(1);
-//a.insert(2);
-//a.insert(3);
-//a.insert(4);
-//a.insert(5);
-//a.insert(6);
-//a.insert(7);
-//a.insert(8);
-//a.insert(9);
-//
-///*for (auto its = a.begin(); its != a.end(); ++its)
-//{
-//cout << *its << " ";
-//}
-//cout << "\n";
-//
-//for (auto its = --a.end(); its != a.begin(); --its)
-//{
-//cout << *its << " ";
-//}*/
-//
-//auto b = a.begin();
-//for (int i = 0; i < 7; i++)
-//{
-//	std::cout << *b << '\n';
-//	b++;
-//}
-//a.insert(10);
-//std::cout << *b << "\n";	//shoudl be 8
-//
-//a.insert(11);
-//
-//std::cout << *++b << "\n";	//should be 9
-//
-//a.erase(8);
-//
-//std::cout << *b << "\n";	//shoudl be 9

@@ -391,9 +391,10 @@ public:
 	template <class... Args>
 	pair<iterator, bool> emplace(Args&&... args)		//test!!!!
 	{
-		node<T>* _Newnode = createNode(std::forward<_Valty>(_Val)...);
-		insert(root,_Newnode->data,_Newnode);
-		return std::make_pair<iterator,bool>(iterator(_Newnode,root), find(_Newnode->data) != end())
+		node<T>* _Newnode = createNode(std::forward<Args>(args)...);
+		root = insert(root,_Newnode->data,_Newnode);
+		_size++;
+		return std::make_pair<iterator, bool>(iterator(_Newnode, root), find(_Newnode->data) != end());
 	}
 
 
@@ -408,7 +409,7 @@ public:
 	
 	unsigned long erase(const value_type& val)		//test
 	{
-		auto _Where = equal_range(val);
+		auto _Where = equal_range(_Kfn(val));
 		unsigned long _Num =  std::distance(_Where.first, _Where.second);
 		erase(_Where.first, _Where.second);
 		_size -= _Num;
@@ -467,11 +468,11 @@ public:
 		node<T>* temp = root;
 		while (temp != nullptr)
 		{
-			if (!(cmp(data, temp->data)) && !(cmp(temp->data, data)))
+			if (!(cmp(_Kfn(data), _Kfn(temp->data))) && !(cmp(_Kfn(temp->data), _Kfn(data))))
 			{
 				return const_iterator(temp, root);
 			}
-			if (cmp(data, temp->data))
+			if (cmp(_Kfn(data), _Kfn(temp->data)))
 				temp = temp->Left;
 			else
 				temp = temp->Right;
@@ -577,34 +578,37 @@ public:
 	}
 
 
-	iterator lower_bound(const value_type& val)
+	iterator lower_bound(const key_type& val)
 	{
-		return iterator(_Lbound(val), root);
+		return iterator(_Lbound(val, T()), root);
 	}
-	const_iterator lower_bound(const value_type& val) const
+	const_iterator lower_bound(const key_type& val) const
 	{
-		return const_iterator(_Lbound(val), root);
-	}
-
-	iterator upper_bound(const value_type& val)
-	{
-		return iterator(_Ubound(val), root);
-	}
-	const_iterator upper_bound(const value_type& val) const
-	{
-		return const_iterator(_Ubound(val), root);
+		return const_iterator(_Lbound(val, T()), root);
 	}
 
-	pair<const_iterator, const_iterator> equal_range(const value_type& val) const
+	iterator upper_bound(const key_type& val)
 	{
-		node<T>* Hi = _Ubound(val);
-		node<T>* Lo = _Lbound(val);
+		return iterator(_Ubound(val, T()), root);
+	}
+	
+	const_iterator upper_bound(const key_type& val) const
+	{
+		return const_iterator(_Ubound(val, T()), root);
+	}
+
+	
+	pair<const_iterator, const_iterator> equal_range(const key_type& val) const
+	{
+		node<T>* Hi = _Ubound(val, T());
+		node<T>* Lo = _Lbound(val, T());
 		return make_pair<const_iterator, const_iterator>(const_iterator(Lo, root), const_iterator(Hi, root));
 	}
-	pair<iterator, iterator> equal_range(const value_type& val)
+	
+	pair<iterator, iterator> equal_range(const key_type& val)
 	{
-		node<T>* Hi = _Ubound(val);
-		node<T>* Lo = _Lbound(val);
+		node<T>* Hi = _Ubound(val, T());
+		node<T>* Lo = _Lbound(val, T());
 		return make_pair<iterator, iterator>(iterator(Lo, root), iterator(Hi, root));
 	}
 
@@ -673,7 +677,7 @@ public:
 		if (h == nullptr)
 			return  node;
 
-		if (cmp(data, h->data))
+		if (cmp(_Kfn(data), _Kfn(h->data)))
 		{
 			h->Right = insert(h->Right, data);
 			h->Right->Parent = h;
@@ -708,14 +712,14 @@ private:
 
 
 
-	template<class T>
-	node<T>* _Lbound(const T& _Keyval)  // find leftmost node not less than _Keyval
+	template<class T, class key_type>
+	node<T>* _Lbound(const key_type& _Keyval, T empty)  // find leftmost node not less than _Keyval
 	{	
 		node<T>* tmp = root;
 		node<T>* _Wherenode = _Myhead();	// end() if search fails
 
-		while (!tmp)
-			if (cmp(_Kfn(tmp->data), _Kfn(_Keyval)))
+		while (tmp)
+			if (cmp(_Kfn(tmp->data), _Keyval))
 				tmp =  tmp->Right;	// descend right subtree
 			else
 			{	// tmp not less than _Keyval, remember it
@@ -726,14 +730,14 @@ private:
 		return (_Wherenode);	// return best remembered candidate
 	}
 
-	template<class T>
-	node<T>* _Ubound(const T& _Keyval)  // find leftmost node greater than _Keyval
+	template<class T, class key_type>
+	node<T>* _Ubound(const key_type& _Keyval, T empty)  // find leftmost node greater than _Keyval
 	{	
 		node<T>* tmp = root;
 		node<T>* _Wherenode = _Myhead();	// end() if search fails
 
-		while (!tmp)
-			if (cmp(_Kfn(_Keyval), _Kfn(tmp->data)))
+		while (tmp)
+			if (cmp(_Keyval, _Kfn(tmp->data)))
 			{	// _Pnode greater than _Keyval, remember it
 				_Wherenode = tmp;
 				tmp = tmp->Left;	// descend left subtree
@@ -769,9 +773,9 @@ private:
 		node<T>* temp = a.allocate(1);
 
 		try {
-			a.construct(std::addressof(temp->Left, nullptr));
-			a.construct(std::addressof(temp->Right, nullptr));
-			a.construct(std::addressof(temp->Parent, nullptr));
+			a.construct(std::addressof(temp->Left), _Myhead());
+			a.construct(std::addressof(temp->Right), _Myhead());
+			a.construct(std::addressof(temp->Parent), _Myhead());
 		}
 		catch(...)
 		{
