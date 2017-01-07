@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <iterator>
 
+#include <type_traits>
+
 using namespace std;
 
 
@@ -164,6 +166,8 @@ public:
 
 	typedef typename int difference_type;
 	typedef typename T value_type;
+	typedef typename T& reference;
+	typedef typename T* pointer;
 
 	typedef typename node<T>*  nodePtr;
 
@@ -229,35 +233,36 @@ public:
 	}
 
 	template <class InputIterator>
-	LLRB(InputIterator first, InputIterator last, const Compare& comp = cmp, const Alloc&   allo = al)
+	LLRB(InputIterator first, InputIterator last, const Compare& comp, const Alloc&   allo)
 	{
 		this->insert(first, last);
 	}
 
 	LLRB(const self_type& x)
 	{
-		this = x;
+		*this = x;
 	}
 
+	//LLRB(self_type&& x)
+	//{
+	//	operator=(x);
+	//}
 
-	LLRB(const self_type& x, const Alloc&  allo = al)
+	LLRB(const self_type& x, const Alloc&  allo)
 	{
 		//operator=(x);
 		al = allo;
 	}
 	
-	LLRB(self_type&& x)
-	{
-		operator=(x);
-	}
+
 	
-	LLRB(self_type&& x, const Alloc&  allo = al)
+	LLRB(self_type&& x, const Alloc&  allo)
 	{
 		operator=(x);
 		al = allo;
 	}
 	
-	LLRB(initializer_list<value_type> il, const Compare& comp = cmp, const Alloc&  allo = al)
+	LLRB(initializer_list<value_type> il, const Compare& comp, const Alloc&  allo)
 	{
 		this->insert(il);
 		cmp = comp;
@@ -275,20 +280,24 @@ public:
 	{
 		if (this != &_Right) // different, move it
 		{
-			clear();
-			swap();
+			Clear();
+			//swap(_Right);
+			//do copy here
 		}
 		return (*this);
 	}
+	
+	
 	self_type& operator= (self_type&& _Right)
 	{
 		if (this != &_Right) // different, move it
 		{	
-			clear();
-			swap();
+			Clear();
+			swap(_Right);
 		}
 		return (*this);
 	}
+
 	self_type& operator= (initializer_list<value_type> il)
 	{
 		this->clear();
@@ -301,9 +310,9 @@ public:
 	{
 		do
 		{
-			auto _First = this->begin();
+			auto _First = begin();
 			erase(*_First);
-		} while (this->begin() != this->end());
+		} while (begin() != end());
 	}
 
 	Alloc get_allocator() const noexcept
@@ -362,7 +371,7 @@ public:
 		root = insert(root, val);
 		root->IsRed = false;
 		_size++;
-		return std::pair<iterator, bool>(it, it != end());
+		return std::pair<iterator, bool>(find(val), it != end());
 	}
 
 	pair<iterator, bool> insert(value_type&& val)
@@ -373,7 +382,7 @@ public:
 		root = insert(root, val);
 		root->IsRed = false;
 		_size++;
-		return std::pair<iterator, bool>(it, it != end());
+		return std::pair<iterator, bool>(find(val), it != end());
 	}
 
 	template <class InputIterator>
@@ -409,11 +418,18 @@ public:
 	
 	unsigned long erase(const value_type& val)		//test
 	{
-		auto _Where = equal_range(_Kfn(val));
+		/*auto _Where = equal_range(_Kfn(val));
 		unsigned long _Num =  std::distance(_Where.first, _Where.second);
 		erase(_Where.first, _Where.second);
 		_size -= _Num;
-		return (_Num);
+		return (_Num);*/
+		auto position = find(val);
+		root = erase(root, *position);
+		_size--;
+		if (root != nullptr)
+			root->IsRed = false;
+		return 1;
+
 	}
 	iterator  erase(const_iterator first, const_iterator last)		//test but should work
 	{

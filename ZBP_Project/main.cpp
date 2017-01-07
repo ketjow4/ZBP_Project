@@ -13,13 +13,14 @@
 #include <map>
 
 //TODO 
-//- fix iterators returned by insert functions in case of really inserting some data.
+//-difference between multiset<pair<int,int> and multimap<int,int>  this is the same for me now 
 
 int main()
 {
 	mapLLRB<int, double> xyz; 
 
-	//TODO fix operator= to get proper value into the map
+	
+
 	xyz[1] = 30.0f;
 
 	/*xyz.insert(std::pair<int, int>(1, 30));
@@ -31,7 +32,7 @@ int main()
 
 	multisetLLRB<int> tree2;
 
-	set<int> abcabc;
+	set<int> abcabc = { 1,2,3 };
 
 	map<int, int> mapa;
 
@@ -58,6 +59,9 @@ int main()
 	tree.insert(7);
 	tree.insert(8);
 	tree.insert(9);
+	tree.Clear();
+	auto result = tree.equal_range(3);
+
 
 	std::cout << "\nLLRB_iterator \n";
 	

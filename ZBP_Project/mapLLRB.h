@@ -6,7 +6,7 @@
 
 
 
-template<class T, class key, class _Pr = less<T>, class _Alloc = allocator<std::pair<key,T>>>
+template<class key, class T, class _Pr = less<T>, class _Alloc = allocator<std::pair<key,T>>>
 class mapLLRB
 	: public LLRB<std::pair<key, T>, key, _Pr, _Alloc, false>
 {
@@ -19,8 +19,6 @@ public:
 	{	
 		 return _Val.first;
 	}
-
-
 
 	 template<class _Keyty,
 		 class... _Mappedty>
@@ -68,25 +66,18 @@ public:
 			 std::forward<_Mappedty>(_Mapval)...).first);
 	 }
 
-
-	 //TODO
 	 mapped_type& operator[] (const key& k)
 	 {
 		 return (try_emplace(k).first->second);
 	 }
 
-	 //TODO
 	 mapped_type& operator[] (key&& k)
 	 {
-		 auto result = try_emplace(k).first;
-		 int a = 1;
-		 return a;//result->second;
+		 return (try_emplace(std::move(k)).first->second);
 	 }
 
-	 //using LLRB<std::pair<key, T>, key, _Pr, _Alloc, false>::lower_bound;
-	 //using LLRB<std::pair<key, T>, key, _Pr, _Alloc, false>::const_iterator;
 
-	 //TODO
+
 	 mapped_type& at(const key& k)
 	 {
 		 iterator _Where = lower_bound(k);
@@ -95,7 +86,7 @@ public:
 		 return (_Where->second);
 	 }
 
-	 //TODO
+
 	 const mapped_type& at(const key& k) const
 	 {
 		 const_iterator _Where = lower_bound(k);
@@ -106,28 +97,31 @@ public:
 
 	 using LLRB<std::pair<key, T>, key, _Pr, _Alloc, false>::insert;
 
-	 //TODO
+
 	 pair<iterator, bool> insert(const value_type& val)
 	 {
 		 auto it = find(val);
 		 if (it != end())
 			 return std::pair<iterator, bool>(it, false);
-		 _Sethead(insert(_Myhead(), val));
+		
+		 auto pariib = try_emplace(_Kfn(val));
+		 pariib.first->second = val;
+		 /* _Sethead(insert(_Myhead(), val));
 		 _Myhead()->IsRed = false;
-		 _size++;
-		 return std::pair<iterator, bool>(it, it != end());
+		 _size++;*/
+		 return std::pair<iterator, bool>(pariib.first, true);
 	 }
 
-	 //TODO
+
 	 pair<iterator, bool> insert(value_type&& val)
 	 {
 		 auto it = find(val);			//if not in set it == end()
 		 if (it != end())
 			 return std::pair<iterator, bool>(it, false);
-		 _Sethead(insert(_Myhead(), val));
-		 _Myhead()->IsRed = false;
-		 _size++;
-		 return std::pair<iterator, bool>(it, it != end());
+
+		 auto pariib = try_emplace(std::move(_Kfn(std::move(val))));
+		 pariib.first->second = val;
+		 return std::pair<iterator, bool>(pariib.first, true);
 	 }
 
 private:
