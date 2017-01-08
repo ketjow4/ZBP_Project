@@ -272,8 +272,8 @@ public:
 
 	self_type::~LLRB()
 	{
-		if (root != nullptr)
-			Clear();
+		/*if (root != nullptr)
+			Clear();*/
 	}
 	
 	self_type& operator= (const self_type& _Right)
@@ -488,7 +488,7 @@ public:
 			{
 				return const_iterator(temp, root);
 			}
-			if (cmp(_Kfn(data), _Kfn(temp->data)))
+			if (cmp(_Kfn(temp->data), _Kfn(data)))
 				temp = temp->Left;
 			else
 				temp = temp->Right;
@@ -507,7 +507,7 @@ public:
 			{
 				return iterator(temp, root);
 			}
-			if (cmp(_Kfn(data), _Kfn(temp->data)))
+			if (cmp(_Kfn(temp->data), _Kfn(data)))
 				temp = temp->Left;
 			else
 				temp = temp->Right;
