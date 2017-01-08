@@ -306,15 +306,21 @@ public:
 	}
 
 	
-	void Clear() noexcept	//change to recursive deletion 
+	void _Erase(node<T>* Rootnode)
 	{
-		if (_size == 0)
-			return;
-		do
-		{
-			auto _First = begin();
-			erase(*_First);
-		} while (begin() != end());
+		for (node<T>* tmp = Rootnode; tmp != nullptr; Rootnode = tmp)
+		{	// free subtrees, then node
+			_Erase(tmp->Right);
+			tmp = tmp->Left;
+			destroyNode(Rootnode);
+		}
+	}
+
+	void Clear() noexcept	//recursive deletion 
+	{
+		_Erase(root);
+		root = nullptr;
+		_size = 0;
 	}
 
 	Alloc get_allocator() const noexcept
@@ -415,7 +421,7 @@ public:
 		_size--;
 		if (root != nullptr)
 			root->IsRed = false;
-		return iterator(++position.ptr_, root);
+		return iterator((++position).ptr_, root);
 	}
 	
 	unsigned long erase(const value_type& val)		//test
@@ -518,6 +524,8 @@ public:
 	}
 
 
+//Compile print tree to console only for debug build
+#ifdef _DEBUG
 	//--------------------------------------------------------------BEGIN print tree on std::out ------------------------------------------------------------
 	static void postorder(ostream& out, node<T>* p, int indent = 0)
 	{
@@ -543,7 +551,7 @@ public:
 		return out;
 	}
 	//--------------------------------------------------------------END print tree on std::out ------------------------------------------------------------
-
+#endif // DEBUG
 	
 
 	template<typename T>
@@ -582,7 +590,6 @@ public:
 		return (_size == 0);
 	}
 
-	
 	template<typename T>
 	unsigned long count(const T& val) const
 	{
@@ -609,7 +616,6 @@ public:
 	{
 		return iterator(_Ubound(val, T()), root);
 	}
-	
 	const_iterator upper_bound(const key_type& val) const
 	{
 		return const_iterator(_Ubound(val, T()), root);
@@ -667,7 +673,7 @@ public:
 	node<T>* insert(node<T>* h, T data)
 	{
 		if (h == nullptr)
-			return  createNode(data);		//new node<T>(data);
+			return  createNode(data);
 
 		if (cmp(_Kfn(h->data), _Kfn(data)))
 		{
@@ -818,6 +824,7 @@ private:
 	{
 		//delete free;
 		auto a = Alloc::rebind<node<T>>::other(al);
+		a.destroy(std::addressof(free->data));			//TODO test memory leaks
 		a.destroy(free->Left);
 		a.destroy(free->Right);
 		a.destroy(free->Parent);
@@ -976,17 +983,7 @@ private:
 			return h->IsRed;
 	}
 
-
-
-
 	virtual  key_type _Kfn(value_type _Val) = 0;
-
-
-	//const key_type& _Key(_Nodeptr _Pnode) const
-	//{	// return reference to key in node
-	//	return ((const key_type&)this->_Kfn(this->_Myval(_Pnode)));
-	//}
-
 };
 
 #endif // !LLRB_H

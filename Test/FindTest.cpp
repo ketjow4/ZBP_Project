@@ -61,24 +61,46 @@ TEST(lowerBoundTestSet, lower_bound_on_non_empty_set)
 {
 	setLLRB<int> a = { 1,2,3,4,5,6,7,8,9,10 };
 	auto it = a.lower_bound(2);
-	ASSERT_EQ(it, a.begin());
+	ASSERT_EQ(*(it), 2);
+	it = a.lower_bound(1);
 	ASSERT_EQ(*(it), 1);
-
-	it = a.lower_bound(1);		//TODO
 }
 
-TEST(lowerBoundTestSet, upper_bound_on_empty_set)
+
+TEST(lowerBoundTestSet, lower_bound_on_non_existing_element_set)
+{
+	setLLRB<int> a = { 1,2,3,4,5,6,7,8,9,10 };
+	auto it = a.lower_bound(11);
+	ASSERT_EQ((it), a.end());
+}
+
+TEST(upperBoundTestSet, upper_bound_on_empty_set)
 {
 	setLLRB<int> a;
 	ASSERT_EQ(a.upper_bound(1), a.end());
 }
 
 
-TEST(lowerBoundTestSet, upper_bound_on_non_empty_set)
+TEST(upperBoundTestSet, upper_bound_on_non_existing_element_set)
+{
+	setLLRB<int> a = { 1,2,3,4,5,6,7,8,9,10 };
+	auto it = a.upper_bound(0);
+	ASSERT_EQ(*(it), 1);
+}
+
+TEST(upperBoundTestSet, upper_bound_on_non_empty_set)
 {
 	setLLRB<int> a = { 1,2,3,4,5,6,7,8,9,10 };
 	auto it = a.upper_bound(2);
 	ASSERT_EQ(*(it), 3);
 
-	it = a.upper_bound(10);		//TODO
+	it = a.upper_bound(10);
+	ASSERT_EQ((it), a.end());
+}
+
+
+TEST(equalRangeTestSet, TODO)
+{
+	setLLRB<int> a = { 1,2,3,4,5,6,7,8,9,10 };
+	ASSERT_EQ(1,2);
 }

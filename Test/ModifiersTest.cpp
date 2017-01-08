@@ -49,8 +49,10 @@ TEST(clearTestSet, clear_set_with_many_elements)
 }
 
 
-TEST(emplaceTestSet, TODO)
+TEST(emplaceTestSet, emplace_single_element_in_set)
 {
 	setLLRB<int> a;
-	ASSERT_EQ(2, 1);
+	auto pairib = a.emplace(1);
+	ASSERT_EQ(pairib.second, true);
+	ASSERT_EQ(*(pairib.first), 1);
 }
