@@ -308,6 +308,8 @@ public:
 	
 	void Clear() noexcept	//change to recursive deletion 
 	{
+		if (_size == 0)
+			return;
 		do
 		{
 			auto _First = begin();
@@ -371,7 +373,7 @@ public:
 		root = insert(root, val);
 		root->IsRed = false;
 		_size++;
-		return std::pair<iterator, bool>(find(val), it != end());
+		return std::pair<iterator, bool>(find(val), true);
 	}
 
 	pair<iterator, bool> insert(value_type&& val)
@@ -382,7 +384,7 @@ public:
 		root = insert(root, val);
 		root->IsRed = false;
 		_size++;
-		return std::pair<iterator, bool>(find(val), it != end());
+		return std::pair<iterator, bool>(find(val), true);
 	}
 
 	template <class InputIterator>
@@ -577,7 +579,7 @@ public:
 
 	bool empty() const noexcept
 	{
-		return (_size == 0)
+		return (_size == 0);
 	}
 
 	

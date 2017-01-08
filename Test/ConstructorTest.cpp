@@ -4,7 +4,7 @@
 TEST(testConstructorSet, default_constructor_test)
 {
 	setLLRB<int> a;
-	ASSERT_EQ(nullptr, nullptr);
+	ASSERT_EQ(a.empty(), true);
 }
 
 
@@ -25,10 +25,10 @@ TEST(testConstructorSet, initializer_list_constructor_test)
 
 TEST(testConstructorSet, initialize_from_copy_test)
 {
-	//auto b = setLLRB<int>();
-	//b.insert(1);
-	//setLLRB<int> a(b);
-	//ASSERT_EQ(a.size(),1);
+	auto b = setLLRB<int>();
+	b.insert(1);
+	setLLRB<int> a(b);
+	ASSERT_EQ(a.size(),1);
 }
 
 

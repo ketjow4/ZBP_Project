@@ -11,6 +11,8 @@ TEST(iteratorTestSet, empyt_set_iterators)
 
 TEST(iteratorTestSet, not_empyt_set_iterators)
 {
-	/*setLLRB<int> a = { 1,2,3,4 };
-	ASSERT_NE(a.begin(), a.end());*/
+	setLLRB<int> a = { 1,2,3,4 };
+	ASSERT_NE(a.begin(), a.end());
+	ASSERT_EQ(*(a.begin()), 4);
+	ASSERT_EQ(*(a.end()--), 1);
 }
