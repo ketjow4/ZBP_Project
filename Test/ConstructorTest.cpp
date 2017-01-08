@@ -18,8 +18,8 @@ TEST(testConstructorSet, default_copy_constructor_test)
 
 TEST(testConstructorSet, initializer_list_constructor_test)
 {
-	/*setLLRB<int> a = {1,2,3};
-	ASSERT_EQ(a.size(), 3);*/
+	setLLRB<int> a = {1,2,3};
+	ASSERT_EQ(a.size(), 3);
 }
 
 

@@ -151,6 +151,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConstructorTest.cpp" />
+    <ClCompile Include="FindTest.cpp" />
     <ClCompile Include="gtest-all.cc" />
     <ClCompile Include="ItertatorsTest.cpp" />
     <ClCompile Include="main.cpp" />
