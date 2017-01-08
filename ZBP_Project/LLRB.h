@@ -490,7 +490,7 @@ public:
 			{
 				return const_iterator(temp, root);
 			}
-			if (cmp(_Kfn(temp->data), _Kfn(data)))
+			if (cmp(_Kfn(data), _Kfn(temp->data)))
 				temp = temp->Left;
 			else
 				temp = temp->Right;
@@ -509,7 +509,7 @@ public:
 			{
 				return iterator(temp, root);
 			}
-			if (cmp(_Kfn(temp->data), _Kfn(data)))
+			if (cmp(_Kfn(data), _Kfn(temp->data)))
 				temp = temp->Left;
 			else
 				temp = temp->Right;
@@ -669,7 +669,7 @@ public:
 		if (h == nullptr)
 			return  createNode(data);		//new node<T>(data);
 
-		if (cmp(_Kfn(data), _Kfn(h->data)))
+		if (cmp(_Kfn(h->data), _Kfn(data)))
 		{
 			h->Right = insert(h->Right, data);
 			h->Right->Parent = h;
@@ -695,7 +695,7 @@ public:
 		if (h == nullptr)
 			return  node;
 
-		if (cmp(_Kfn(data), _Kfn(h->data)))
+		if (cmp(_Kfn(h->data), _Kfn(data)))
 		{
 			h->Right = insert(h->Right, data);
 			h->Right->Parent = h;
@@ -884,7 +884,7 @@ private:
 	template<typename T>
 	node<T>* erase(node<T>* h, T data)
 	{
-		if (cmp(_Kfn(h->data), _Kfn(data)))			//operator <
+		if (cmp(_Kfn(data), _Kfn(h->data)))			//operator <
 		{
 			if (!IsRed(h->Left) && !IsRed(h->Left->Left))
 				h = moveRedLeft(h);
