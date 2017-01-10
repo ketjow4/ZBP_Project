@@ -154,12 +154,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CapacityTest.cpp" />
-    <ClCompile Include="ConstructorTest.cpp" />
-    <ClCompile Include="FindTest.cpp" />
+    <ClCompile Include="SetCapacityTest.cpp" />
+    <ClCompile Include="SetConstructorTest.cpp" />
+    <ClCompile Include="SetFindTest.cpp" />
     <ClCompile Include="gtest-all.cc" />
-    <ClCompile Include="ModifiersTest.cpp" />
-    <ClCompile Include="ItertatorsTest.cpp" />
+    <ClCompile Include="MapConstructorTest.cpp" />
+    <ClCompile Include="SetModifiersTest.cpp" />
+    <ClCompile Include="SetItertatorsTest.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

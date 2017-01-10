@@ -14,11 +14,33 @@ public:
 	typedef typename std::pair< key, T> value_type;
 	typedef typename T mapped_type;
 	typedef typename key key_type;
+	typedef typename LLRB<std::pair<key, T>, key, _Pr, _Alloc, false> base;
+	typedef typename mapLLRB<key, T, _Pr, _Alloc> self_type;
+
 
 	 key _Kfn( value_type _Val) 
 	{	
 		 return _Val.first;
 	}
+
+
+	 mapLLRB() : base()
+	 {
+	 }
+
+	 mapLLRB(const self_type& x) : base(x)
+	 {
+	 }
+
+	 mapLLRB(const self_type&& x) : base(std::move(x))
+	 {
+	 }
+
+	 mapLLRB(initializer_list<value_type> _Ilist) : base()
+	 {	// construct from initializer_list, defaults
+		 this->insert(_Ilist);
+	 }
+
 
 	 template<class _Keyty,
 		 class... _Mappedty>
@@ -105,7 +127,7 @@ public:
 			 return std::pair<iterator, bool>(it, false);
 		
 		 auto pariib = try_emplace(_Kfn(val));
-		 pariib.first->second = val;
+		 //*(pariib.first)->second = val;
 		 return std::pair<iterator, bool>(pariib.first, true);
 	 }
 
@@ -117,7 +139,7 @@ public:
 			 return std::pair<iterator, bool>(it, false);
 
 		 auto pariib = try_emplace(std::move(_Kfn(std::move(val))));
-		 pariib.first->second = val;
+		 //*(pariib.first)->second = val;
 		 return std::pair<iterator, bool>(pariib.first, true);
 	 }
 
@@ -126,16 +148,41 @@ private:
 };
 
 
-template<class T, class key, class _Pr = less<T>, class _Alloc = allocator<std::pair<key, T>>>
+template<class key, class T, class _Pr = less<T>, class _Alloc = allocator<std::pair<key, T>>>
 class multimapLLRB
 	: public LLRB<std::pair<key, T>, key, _Pr, _Alloc, true>
 {
+public:
 	typedef typename pair< key, T> value_type;
+	typedef typename LLRB<std::pair<key, T>, key, _Pr, _Alloc, true> base;
+	typedef typename multimapLLRB<key,T, _Pr, _Alloc> self_type;
+
+
 
 	key _Kfn(value_type _Val)
 	{
 		return _Val.first;
 	}
+
+
+	multimapLLRB() : base()
+	{
+	}
+
+	multimapLLRB(const self_type& x) : base(x)
+	{
+	}
+
+	multimapLLRB(const self_type&& x) : base(std::move(x))
+	{
+	}
+
+	multimapLLRB(initializer_list<value_type> _Ilist)
+		: base()
+	{	// construct from initializer_list, defaults
+		this->insert(_Ilist);
+	}
+
 
 private:
 
