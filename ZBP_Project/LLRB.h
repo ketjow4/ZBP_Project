@@ -412,7 +412,7 @@ public:
 
 
 	template <class... Args>
-	pair<iterator, bool> emplace(Args&&... args)		//test!!!!
+	pair<iterator, bool> emplace(Args&&... args)
 	{
 		node<T>* _Newnode = createNode(std::forward<Args>(args)...);
 		root = _insert(root,_Newnode->data,_Newnode);
@@ -421,31 +421,25 @@ public:
 	}
 
 
-	iterator erase(const_iterator position)		//test
+	iterator erase(const_iterator position)
 	{
+		auto valueCopy = *position;
 		root = erase(root, *position);
 		_size--;
 		if (root != nullptr)
 			root->IsRed = false;
-		return iterator((++position).ptr_, root);
+		return iterator(upper_bound(valueCopy).ptr_, root);
 	}
 	
-	unsigned long erase(const value_type& val)		//test
+	unsigned long erase(const value_type& val)
 	{
-		/*auto _Where = equal_range(_Kfn(val));
+		auto _Where = equal_range(_Kfn(val));
 		unsigned long _Num =  std::distance(_Where.first, _Where.second);
 		erase(_Where.first, _Where.second);
-		_size -= _Num;
-		return (_Num);*/
-		auto position = find(val);
-		root = erase(root, *position);
-		_size--;
-		if (root != nullptr)
-			root->IsRed = false;
-		return 1;
+		return (_Num);
 
 	}
-	iterator  erase(const_iterator first, const_iterator last)		//test but should work
+	iterator  erase(const_iterator first, const_iterator last)		
 	{
 		if (first == begin() && last == end())
 		{	// erase all

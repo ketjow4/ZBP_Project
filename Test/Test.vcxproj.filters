@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\SetTest">
+      <UniqueIdentifier>{f1daf298-a4c2-4c87-af5e-bb04cb5bbf6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MapTest">
+      <UniqueIdentifier>{6163d42e-687e-4a6a-8f48-821aaa10173b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -21,20 +27,20 @@
     <ClCompile Include="gtest-all.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConstructorTest.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="CapacityTest.cpp">
+      <Filter>Source Files\SetTest</Filter>
     </ClCompile>
-    <ClCompile Include="ItertatorsTest.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="ConstructorTest.cpp">
+      <Filter>Source Files\SetTest</Filter>
     </ClCompile>
     <ClCompile Include="FindTest.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\SetTest</Filter>
     </ClCompile>
-    <ClCompile Include="CapacityTest.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="ItertatorsTest.cpp">
+      <Filter>Source Files\SetTest</Filter>
     </ClCompile>
     <ClCompile Include="ModifiersTest.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\SetTest</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
