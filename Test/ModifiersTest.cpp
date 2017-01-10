@@ -18,10 +18,13 @@ TEST(eraseTestSet, can_erase_one_element_by_value)
 }
 
 
-TEST(swapTestSet, TODO)
+TEST(swapTestSet, swap_not_empty_sets)
 {
-	setLLRB<int> a;
-	ASSERT_EQ(2, 1);
+	setLLRB<int> a = {1,2,3};
+	setLLRB<int> b = { 4,5,6 };
+	a.swap(b);
+	ASSERT_EQ(*(a.begin()), 4);
+	ASSERT_EQ(*(b.begin()), 1);
 }
 
 TEST(clearTestSet, clear_empty_set)
@@ -55,4 +58,17 @@ TEST(emplaceTestSet, emplace_single_element_in_set)
 	auto pairib = a.emplace(1);
 	ASSERT_EQ(pairib.second, true);
 	ASSERT_EQ(*(pairib.first), 1);
+}
+
+
+TEST(emplaceTestSet, emplace_many_elements_in_set)
+{
+	setLLRB<int> a;
+	for(int i = 0; i < 10; i++)
+	{ 
+		auto pairib = a.emplace(i);
+		ASSERT_EQ(pairib.second, true);
+		ASSERT_EQ(*(pairib.first), i);
+	}
+	ASSERT_EQ(a.size(), 10);
 }

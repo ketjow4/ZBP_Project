@@ -99,8 +99,30 @@ TEST(upperBoundTestSet, upper_bound_on_non_empty_set)
 }
 
 
-TEST(equalRangeTestSet, TODO)
+TEST(equalRangeTestSet, equal_range_on_non_empty_set)
 {
 	setLLRB<int> a = { 1,2,3,4,5,6,7,8,9,10 };
-	ASSERT_EQ(1,2);
+	
+	auto ii = a.equal_range(2);
+	ASSERT_EQ(*ii.first, 2);
+	ASSERT_EQ(*ii.second, 3);
+	ASSERT_EQ(std::distance(ii.first, ii.second), 1);
+}
+
+TEST(equalRangeTestSet, equal_range_on_non_existing_smaller_than_element_set)
+{
+	setLLRB<int> a = { 1,2,3,4,5,6,7,8,9,10 };
+
+	auto ii = a.equal_range(0);
+	ASSERT_EQ(*ii.first, 1);
+	ASSERT_EQ(*ii.second, 1);
+}
+
+TEST(equalRangeTestSet, equal_range_on_non_existing_bigger_than_element_set)
+{
+	setLLRB<int> a = { 1,2,3,4,5,6,7,8,9,10 };
+
+	auto ii = a.equal_range(11);
+	ASSERT_EQ(ii.first, a.end());
+	ASSERT_EQ(ii.second, a.end());
 }

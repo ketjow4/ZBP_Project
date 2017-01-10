@@ -106,9 +106,6 @@ public:
 		
 		 auto pariib = try_emplace(_Kfn(val));
 		 pariib.first->second = val;
-		 /* _Sethead(insert(_Myhead(), val));
-		 _Myhead()->IsRed = false;
-		 _size++;*/
 		 return std::pair<iterator, bool>(pariib.first, true);
 	 }
 

@@ -235,22 +235,25 @@ public:
 	template <class InputIterator>
 	LLRB(InputIterator first, InputIterator last, const Compare& comp, const Alloc&   allo)
 	{
+		root = nullptr;
 		this->insert(first, last);
 	}
 
 	LLRB(const self_type& x)
 	{
+		root = nullptr;
 		*this = x;
 	}
 
-	//LLRB(self_type&& x)
-	//{
-	//	operator=(x);
-	//}
+	LLRB(self_type&& x)
+	{
+		operator=(x);
+	}
 
 	LLRB(const self_type& x, const Alloc&  allo)
 	{
-		//operator=(x);
+		root = nullptr;
+		operator=(x);
 		al = allo;
 	}
 	
@@ -258,12 +261,14 @@ public:
 	
 	LLRB(self_type&& x, const Alloc&  allo)
 	{
+		root = nullptr;
 		operator=(x);
 		al = allo;
 	}
 	
 	LLRB(initializer_list<value_type> il, const Compare& comp, const Alloc&  allo)
 	{
+		root = nullptr;
 		this->insert(il);
 		cmp = comp;
 		al = allo;
@@ -272,17 +277,25 @@ public:
 
 	self_type::~LLRB()
 	{
-		/*if (root != nullptr)
-			Clear();*/
+		if (root != nullptr)
+			Clear();
 	}
 	
 	self_type& operator= (const self_type& _Right)
 	{
-		if (this != &_Right) // different, move it
+		if (this != &_Right) // different, copy it
 		{
 			Clear();
-			//swap(_Right);
-			//do copy here
+			for(auto it = _Right.cbegin(); it != _Right.cend(); ++it)
+			{
+				auto val = *it; 		//deep copy here
+				auto it2 = find(val);
+				if (multi == false && it2 != end())
+					continue;
+				root = _insert(root, val);
+				root->IsRed = false;
+				_size++;
+			}
 		}
 		return (*this);
 	}
@@ -305,21 +318,14 @@ public:
 		return (*this);
 	}
 
-	
-	void _Erase(node<T>* Rootnode)
-	{
-		for (node<T>* tmp = Rootnode; tmp != nullptr; Rootnode = tmp)
-		{	// free subtrees, then node
-			_Erase(tmp->Right);
-			tmp = tmp->Left;
-			destroyNode(Rootnode);
-		}
-	}
 
 	void Clear() noexcept	//recursive deletion 
 	{
-		_Erase(root);
-		root = nullptr;
+		if(root != nullptr)
+		{
+			_Erase(root);
+			root = nullptr;
+		}
 		_size = 0;
 	}
 
@@ -376,7 +382,7 @@ public:
 		auto it = find(val);
 		if(multi == false && it != end())
 			return std::pair<iterator, bool>(it, false);
-		root = insert(root, val);
+		root = _insert(root, val);
 		root->IsRed = false;
 		_size++;
 		return std::pair<iterator, bool>(find(val), true);
@@ -387,7 +393,7 @@ public:
 		auto it = find(val);			//if not in set it == end()
 		if (multi == false && it != end())
 			return std::pair<iterator, bool>(it, false);
-		root = insert(root, val);
+		root = _insert(root, val);
 		root->IsRed = false;
 		_size++;
 		return std::pair<iterator, bool>(find(val), true);
@@ -409,7 +415,7 @@ public:
 	pair<iterator, bool> emplace(Args&&... args)		//test!!!!
 	{
 		node<T>* _Newnode = createNode(std::forward<Args>(args)...);
-		root = insert(root,_Newnode->data,_Newnode);
+		root = _insert(root,_Newnode->data,_Newnode);
 		_size++;
 		return std::make_pair<iterator, bool>(iterator(_Newnode, root), find(_Newnode->data) != end());
 	}
@@ -637,6 +643,15 @@ public:
 	}
 
 
+
+
+
+
+
+
+
+
+
 	node<T>* _Myhead()
 	{
 		return root;
@@ -664,25 +679,27 @@ public:
 
 
 
-
-
-
+private:
+	Compare cmp;
+	Alloc al;
+	node<T>* root;
+	unsigned int _size;
 
 
 	template<typename T>
-	node<T>* insert(node<T>* h, T data)
+	node<T>* _insert(node<T>* h, T data)
 	{
 		if (h == nullptr)
 			return  createNode(data);
 
 		if (cmp(_Kfn(h->data), _Kfn(data)))
 		{
-			h->Right = insert(h->Right, data);
+			h->Right = _insert(h->Right, data);
 			h->Right->Parent = h;
 		}
 		else
 		{
-			h->Left = insert(h->Left, data);
+			h->Left = _insert(h->Left, data);
 			h->Left->Parent = h;
 		}
 		if (IsRed(h->Right) && !IsRed(h->Left))
@@ -696,19 +713,19 @@ public:
 	}
 
 	template<typename T>
-	node<T>* insert(node<T>* h, T data, node<T>* node)
+	node<T>* _insert(node<T>* h, T data, node<T>* node)
 	{
 		if (h == nullptr)
 			return  node;
 
 		if (cmp(_Kfn(h->data), _Kfn(data)))
 		{
-			h->Right = insert(h->Right, data);
+			h->Right = _insert(h->Right, data, node);
 			h->Right->Parent = h;
 		}
 		else
 		{
-			h->Left = insert(h->Left, data);
+			h->Left = _insert(h->Left, data, node);
 			h->Left->Parent = h;
 		}
 		if (IsRed(h->Right) && !IsRed(h->Left))
@@ -721,17 +738,15 @@ public:
 		return h;
 	}
 
-
-
-
-
-
-	unsigned int _size;
-
-private:
-	Compare cmp;
-	Alloc al;
-	node<T>* root;
+	void _Erase(node<T>* Rootnode)
+	{
+		for (node<T>* tmp = Rootnode; tmp != nullptr; Rootnode = tmp)
+		{	// free subtrees, then node
+			_Erase(tmp->Right);
+			tmp = tmp->Left;
+			destroyNode(Rootnode);
+		}
+	}
 
 
 
@@ -740,7 +755,7 @@ private:
 	node<T>* _Lbound(const key_type& _Keyval, T empty)  // find leftmost node not less than _Keyval
 	{	
 		node<T>* tmp = root;
-		node<T>* _Wherenode = _Myhead();	// end() if search fails
+		node<T>* _Wherenode = nullptr;	// end() if search fails
 
 		while (tmp)
 			if (cmp(_Kfn(tmp->data), _Keyval))
@@ -758,7 +773,7 @@ private:
 	node<T>* _Ubound(const key_type& _Keyval, T empty)  // find leftmost node greater than _Keyval
 	{	
 		node<T>* tmp = root;
-		node<T>* _Wherenode = _Myhead();	// end() if search fails
+		node<T>* _Wherenode = nullptr;	// end() if search fails
 
 		while (tmp)
 			if (cmp(_Keyval, _Kfn(tmp->data)))

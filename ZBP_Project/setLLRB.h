@@ -32,6 +32,10 @@ public:
 		 {
 		 }
 
+		 setLLRB(const self_type&& x) : base(std::move(x))
+		 {
+		 }
+
 		 setLLRB( initializer_list<value_type> _Ilist)
 			 : base()
 		 {	// construct from initializer_list, defaults
