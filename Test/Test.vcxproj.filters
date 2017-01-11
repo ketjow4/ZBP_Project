@@ -45,5 +45,17 @@
     <ClCompile Include="SetModifiersTest.cpp">
       <Filter>Source Files\SetTest</Filter>
     </ClCompile>
+    <ClCompile Include="MapModifiersTest.cpp">
+      <Filter>Source Files\MapTest</Filter>
+    </ClCompile>
+    <ClCompile Include="MapCapacityTest.cpp">
+      <Filter>Source Files\MapTest</Filter>
+    </ClCompile>
+    <ClCompile Include="MapFindTest.cpp">
+      <Filter>Source Files\MapTest</Filter>
+    </ClCompile>
+    <ClCompile Include="MapIteratorsTest.cpp">
+      <Filter>Source Files\MapTest</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

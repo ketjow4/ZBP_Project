@@ -104,7 +104,7 @@ public:
 	 {
 		 iterator _Where = lower_bound(k);
 		 if (_Where == end())
-			 std::out_of_range("invalid map<K, T> key");
+			 throw std::out_of_range("invalid map<K, T> key");
 		 return (_Where->second);
 	 }
 
@@ -113,7 +113,7 @@ public:
 	 {
 		 const_iterator _Where = lower_bound(k);
 		 if (_Where == end())
-			 std::out_of_range("invalid map<K, T> key");
+			 throw std::out_of_range("invalid map<K, T> key");
 		 return (_Where->second);
 	 }
 
@@ -127,7 +127,7 @@ public:
 			 return std::pair<iterator, bool>(it, false);
 		
 		 auto pariib = try_emplace(_Kfn(val));
-		 //*(pariib.first)->second = val;
+		 //(*(pariib.first)).second = val;
 		 return std::pair<iterator, bool>(pariib.first, true);
 	 }
 

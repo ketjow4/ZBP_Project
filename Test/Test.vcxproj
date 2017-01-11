@@ -154,6 +154,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MapCapacityTest.cpp" />
+    <ClCompile Include="MapFindTest.cpp" />
+    <ClCompile Include="MapIteratorsTest.cpp" />
+    <ClCompile Include="MapModifiersTest.cpp" />
     <ClCompile Include="SetCapacityTest.cpp" />
     <ClCompile Include="SetConstructorTest.cpp" />
     <ClCompile Include="SetFindTest.cpp" />

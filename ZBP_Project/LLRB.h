@@ -428,12 +428,14 @@ public:
 		_size--;
 		if (root != nullptr)
 			root->IsRed = false;
-		return iterator(upper_bound(valueCopy).ptr_, root);
+
+		auto ret = upper_bound(_Kfn(valueCopy));
+		return iterator(nullptr, root);
 	}
 	
-	unsigned long erase(const value_type& val)
+	unsigned long erase(const key_type& val)
 	{
-		auto _Where = equal_range(_Kfn(val));
+		auto _Where = equal_range(val);
 		unsigned long _Num =  std::distance(_Where.first, _Where.second);
 		erase(_Where.first, _Where.second);
 		return (_Num);
@@ -806,9 +808,9 @@ private:
 		node<T>* temp = a.allocate(1);
 
 		try {
-			a.construct(std::addressof(temp->Left), _Myhead());
-			a.construct(std::addressof(temp->Right), _Myhead());
-			a.construct(std::addressof(temp->Parent), _Myhead());
+			a.construct(std::addressof(temp->Left), nullptr);
+			a.construct(std::addressof(temp->Right), nullptr);
+			a.construct(std::addressof(temp->Parent), nullptr);
 		}
 		catch(...)
 		{
