@@ -6,7 +6,7 @@
 
 
 
-template<class key, class T, class _Pr = less<T>, class _Alloc = allocator<std::pair<key,T>>>
+template<class key, class T, class _Pr = less<key>, class _Alloc = allocator<std::pair<key,T>>>
 class mapLLRB
 	: public LLRB<std::pair<key, T>, key, _Pr, _Alloc, false>
 {
@@ -122,24 +122,24 @@ public:
 
 	 pair<iterator, bool> insert(const value_type& val)
 	 {
-		 auto it = find(val);
+		 auto it = find(_Kfn(val));
 		 if (it != end())
 			 return std::pair<iterator, bool>(it, false);
 		
 		 auto pariib = try_emplace(_Kfn(val));
-		 //(*(pariib.first)).second = val;
+		 (*(pariib.first)).second = val.second;
 		 return std::pair<iterator, bool>(pariib.first, true);
 	 }
 
 
 	 pair<iterator, bool> insert(value_type&& val)
 	 {
-		 auto it = find(val);			//if not in set it == end()
+		 auto it = find(_Kfn(val));			//if not in set it == end()
 		 if (it != end())
 			 return std::pair<iterator, bool>(it, false);
 
 		 auto pariib = try_emplace(std::move(_Kfn(std::move(val))));
-		 //*(pariib.first)->second = val;
+		 (*(pariib.first)).second = val.second;
 		 return std::pair<iterator, bool>(pariib.first, true);
 	 }
 

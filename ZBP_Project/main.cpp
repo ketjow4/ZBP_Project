@@ -12,13 +12,13 @@
 
 #include <map>
 
-//TODO 
-//-difference between multiset<pair<int,int> and multimap<int,int>  this is the same for me now 
 
 int main()
 {
-	setLLRB<int> a = { 1,2,3,4,5,6,7,8,9,10 };
-	a.Clear();
+
+	mapLLRB<int, int> a = { { 1,1} };
+	auto ret = a.find(1);
+
 	
 
 	_CrtDumpMemoryLeaks();

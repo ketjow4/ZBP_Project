@@ -289,9 +289,6 @@ public:
 			for(auto it = _Right.cbegin(); it != _Right.cend(); ++it)
 			{
 				auto val = *it; 		//deep copy here
-				auto it2 = find(val);
-				if (multi == false && it2 != end())
-					continue;
 				root = _insert(root, val);
 				root->IsRed = false;
 				_size++;
@@ -379,24 +376,24 @@ public:
 
 	pair<iterator, bool> insert(const value_type& val)
 	{
-		auto it = find(val);
+		auto it = find(_Kfn(val));
 		if(multi == false && it != end())
 			return std::pair<iterator, bool>(it, false);
 		root = _insert(root, val);
 		root->IsRed = false;
 		_size++;
-		return std::pair<iterator, bool>(find(val), true);
+		return std::pair<iterator, bool>(find(_Kfn(val)), true);
 	}
 
 	pair<iterator, bool> insert(value_type&& val)
 	{
-		auto it = find(val);			//if not in set it == end()
+		auto it = find(_Kfn(val));			//if not in set it == end()
 		if (multi == false && it != end())
 			return std::pair<iterator, bool>(it, false);
 		root = _insert(root, val);
 		root->IsRed = false;
 		_size++;
-		return std::pair<iterator, bool>(find(val), true);
+		return std::pair<iterator, bool>(find(_Kfn(val)), true);
 	}
 
 	template <class InputIterator>
@@ -417,7 +414,7 @@ public:
 		node<T>* _Newnode = createNode(std::forward<Args>(args)...);
 		root = _insert(root,_Newnode->data,_Newnode);
 		_size++;
-		return std::make_pair<iterator, bool>(iterator(_Newnode, root), find(_Newnode->data) != end());
+		return std::make_pair<iterator, bool>(iterator(_Newnode, root), find(_Kfn(_Newnode->data)) != end());
 	}
 
 
@@ -428,9 +425,7 @@ public:
 		_size--;
 		if (root != nullptr)
 			root->IsRed = false;
-
-		auto ret = upper_bound(_Kfn(valueCopy));
-		return iterator(nullptr, root);
+		return upper_bound(_Kfn(valueCopy));
 	}
 	
 	unsigned long erase(const key_type& val)
@@ -488,17 +483,17 @@ public:
 	}
 
 
-	template<typename T>
-	const_iterator find(const T& val) const
+
+	const_iterator find(const key_type& val) const
 	{
 		node<T>* temp = root;
 		while (temp != nullptr)
 		{
-			if (!(cmp(_Kfn(data), _Kfn(temp->data))) && !(cmp(_Kfn(temp->data), _Kfn(data))))
+			if (!(cmp((val), _Kfn(temp->data))) && !(cmp(_Kfn(temp->data), (val))))
 			{
 				return const_iterator(temp, root);
 			}
-			if (cmp(_Kfn(data), _Kfn(temp->data)))
+			if (cmp((val), _Kfn(temp->data)))
 				temp = temp->Left;
 			else
 				temp = temp->Right;
@@ -507,17 +502,17 @@ public:
 	}
 
 
-	template<typename T>
-	iterator find(const T& data)
+
+	iterator find(const key_type& data)
 	{
 		node<T>* temp = root;
 		while (temp != nullptr)
 		{
-			if (!(cmp(_Kfn(data), _Kfn(temp->data))) && !(cmp(_Kfn(temp->data), _Kfn(data))))
+			if (!(cmp((data), _Kfn(temp->data))) && !(cmp(_Kfn(temp->data), (data))))
 			{
 				return iterator(temp, root);
 			}
-			if (cmp(_Kfn(data), _Kfn(temp->data)))
+			if (cmp((data), _Kfn(temp->data)))
 				temp = temp->Left;
 			else
 				temp = temp->Right;
@@ -592,8 +587,8 @@ public:
 		return (_size == 0);
 	}
 
-	template<typename T>
-	unsigned long count(const T& val) const
+
+	unsigned long count(const key_type& val) 
 	{
 		auto _Ans = equal_range(val);
 		return (std::distance(_Ans.first, _Ans.second));
@@ -766,7 +761,8 @@ private:
 	}
 
 	template<class T, class key_type>
-	node<T>* _Ubound(const key_type& _Keyval, T empty)  // find leftmost node greater than _Keyval
+	node<T>* _Ubound(const key_type& _Keyval, T empty) 
+		// find leftmost node greater than _Keyval
 	{	
 		node<T>* tmp = root;
 		node<T>* _Wherenode = nullptr;	// end() if search fails
