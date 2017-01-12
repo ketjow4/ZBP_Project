@@ -176,10 +176,10 @@ TEST(findTestMultimultimap, find_on_one_element_multimap)
 TEST(findTestMultimultimap, find_on_many_element_multimap)
 {
 	multimapLLRB<int, int> a = { { 1,1 },{ 1,2 },{ 1,3 },{ 4,4 },{ 4,5 },{ 7,6 },{ 7,7 },{ 8,8 },{ 8,9 },{ 10,10 } };
-	ASSERT_EQ((*(a.find(8))).second, 9);
-	ASSERT_EQ((*(a.find(4))).second, 4);
-	ASSERT_EQ((*(a.find(1))).second, 1);
-	ASSERT_EQ((*(a.find(10))).second, 10);
+	ASSERT_EQ((*(a.find(8))).first, 8);
+	ASSERT_EQ((*(a.find(4))).first, 4);
+	ASSERT_EQ((*(a.find(1))).first, 1);
+	ASSERT_EQ((*(a.find(10))).first, 10);
 
 }
 
@@ -215,10 +215,10 @@ TEST(lowerBoundTestMultimultimap, lower_bound_on_empty_multimap)
 TEST(lowerBoundTestMultimultimap, lower_bound_on_non_empty_multimap)
 {
 	multimapLLRB<int, int> a = { { 1,1 },{ 1,2 },{ 1,3 },{ 4,4 },{ 4,5 },{ 7,6 },{ 7,7 },{ 8,8 },{ 8,9 },{ 10,10 } };
-	auto it = a.lower_bound(2);
-	ASSERT_EQ((*(it)).second, 2);
+	auto it = a.lower_bound(4);
+	ASSERT_EQ((*(it)).first, 4);
 	it = a.lower_bound(1);
-	ASSERT_EQ((*(it)).second, 1);
+	ASSERT_EQ((*(it)).first, 1);
 }
 
 
@@ -240,14 +240,14 @@ TEST(upperBoundTestMultimultimap, upper_bound_on_non_existing_element_multimap)
 {
 	multimapLLRB<int, int> a = { { 1,1 },{ 1,2 },{ 1,3 },{ 4,4 },{ 4,5 },{ 7,6 },{ 7,7 },{ 8,8 },{ 8,9 },{ 10,10 } };
 	auto it = a.upper_bound(0);
-	ASSERT_EQ((*(it)).second, 1);
+	ASSERT_EQ((*(it)).first, 1);
 }
 
 TEST(upperBoundTestMultimultimap, upper_bound_on_non_empty_multimap)
 {
 	multimapLLRB<int, int> a = { { 1,1 },{ 1,2 },{ 1,3 },{ 4,4 },{ 4,5 },{ 7,6 },{ 7,7 },{ 8,8 },{ 8,9 },{ 10,10 } };
 	auto it = a.upper_bound(2);
-	ASSERT_EQ((*(it)).second, 3);
+	ASSERT_EQ((*(it)).first, 4);
 
 	it = a.upper_bound(10);
 	ASSERT_EQ((it), a.end());
