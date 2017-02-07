@@ -147,10 +147,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PerformanceTestMultiSet.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLRB.h" />
     <ClInclude Include="mapLLRB.h" />
+    <ClInclude Include="PerfomanceTestMap.h" />
+    <ClInclude Include="PerformanceTest.h" />
     <ClInclude Include="setLLRB.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

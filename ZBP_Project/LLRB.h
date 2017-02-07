@@ -15,12 +15,11 @@ using namespace std;
 template<typename T>
 struct node
 {
-	T data;
-	bool    IsRed;
-
 	node<T>*   Left;
 	node<T>*   Right;
 	node<T>*   Parent;
+	bool    IsRed;
+	T data;
 
 	node(T data) : data(data), IsRed(true)
 	{
@@ -76,7 +75,6 @@ public:
 			{
 				ptr_ = ptr_->Left;
 			}
-			ptr_ = ptr_;
 		}
 		else
 		{
@@ -289,9 +287,7 @@ public:
 			for(auto it = _Right.cbegin(); it != _Right.cend(); ++it)
 			{
 				auto val = *it; 		//deep copy here
-				root = _insert(root, val);
-				root->IsRed = false;
-				_size++;
+				insert(val);
 			}
 		}
 		return (*this);
@@ -376,24 +372,22 @@ public:
 
 	pair<iterator, bool> insert(const value_type& val)
 	{
-		auto it = find(_Kfn(val));
-		if(multi == false && it != end())
-			return std::pair<iterator, bool>(it, false);
-		root = _insert(root, val);
+		bool isInserted = false;
+		node<T>* where_ = nullptr;
+		root = _insert(root, val,where_, isInserted);
 		root->IsRed = false;
 		_size++;
-		return std::pair<iterator, bool>(find(_Kfn(val)), true);
+		return std::pair<iterator, bool>(iterator(where_, root), isInserted);
 	}
 
 	pair<iterator, bool> insert(value_type&& val)
 	{
-		auto it = find(_Kfn(val));			//if not in set it == end()
-		if (multi == false && it != end())
-			return std::pair<iterator, bool>(it, false);
-		root = _insert(root, val);
+		bool isInserted = false;
+		node<T>* where_ = nullptr;
+		root = _insert(root, val, where_, isInserted);
 		root->IsRed = false;
 		_size++;
-		return std::pair<iterator, bool>(find(_Kfn(val)), true);
+		return std::pair<iterator, bool>(iterator(where_,root), isInserted);
 	}
 
 	template <class InputIterator>
@@ -445,9 +439,18 @@ public:
 		}
 		else
 		{	// partial erase, one at a time
-			while (first != last)
-				erase(first++);
-			return (iterator(first.ptr_, root));
+			if(!multi)
+			{
+				while (first != last)
+					erase(first++);
+			}
+			else
+			{
+				throw std::exception("Not implemented - LLRB are not designed for multivalues");
+				//auto it = find(_Kfn(*first)); //should be head of subtree with same values
+				//_Erase(it.ptr_);  //not working throwing some errors
+			}
+			return (iterator(first.ptr_, root));	
 		}
 	}
 
@@ -486,6 +489,7 @@ public:
 
 	const_iterator find(const key_type& val) const
 	{
+		//return lower_bound(val);
 		node<T>* temp = root;
 		while (temp != nullptr)
 		{
@@ -505,6 +509,7 @@ public:
 
 	iterator find(const key_type& data)
 	{
+		//return lower_bound(data);
 		node<T>* temp = root;
 		while (temp != nullptr)
 		{
@@ -637,12 +642,6 @@ public:
 
 
 
-
-
-
-
-
-
 	node<T>* _Myhead()
 	{
 		return root;
@@ -675,69 +674,6 @@ private:
 	Alloc al;
 	node<T>* root;
 	unsigned int _size;
-
-
-	template<typename T>
-	node<T>* _insert(node<T>* h, T data)
-	{
-		if (h == nullptr)
-			return  createNode(data);
-
-		if (cmp(_Kfn(h->data), _Kfn(data)))
-		{
-			h->Right = _insert(h->Right, data);
-			h->Right->Parent = h;
-		}
-		else
-		{
-			h->Left = _insert(h->Left, data);
-			h->Left->Parent = h;
-		}
-		if (IsRed(h->Right) && !IsRed(h->Left))
-			h = rotateLeft(h);
-		if (IsRed(h->Left) && IsRed(h->Left->Left))
-			h = rotateRight(h);
-		if (IsRed(h->Left) && IsRed(h->Right))
-			flipColors(h);
-
-		return h;
-	}
-
-	template<typename T>
-	node<T>* _insert(node<T>* h, T data, node<T>* node)
-	{
-		if (h == nullptr)
-			return  node;
-
-		if (cmp(_Kfn(h->data), _Kfn(data)))
-		{
-			h->Right = _insert(h->Right, data, node);
-			h->Right->Parent = h;
-		}
-		else
-		{
-			h->Left = _insert(h->Left, data, node);
-			h->Left->Parent = h;
-		}
-		if (IsRed(h->Right) && !IsRed(h->Left))
-			h = rotateLeft(h);
-		if (IsRed(h->Left) && IsRed(h->Left->Left))
-			h = rotateRight(h);
-		if (IsRed(h->Left) && IsRed(h->Right))
-			flipColors(h);
-
-		return h;
-	}
-
-	void _Erase(node<T>* Rootnode)
-	{
-		for (node<T>* tmp = Rootnode; tmp != nullptr; Rootnode = tmp)
-		{	// free subtrees, then node
-			_Erase(tmp->Right);
-			tmp = tmp->Left;
-			destroyNode(Rootnode);
-		}
-	}
 
 
 
@@ -839,6 +775,95 @@ private:
 	}
 
 
+
+	template<typename T>
+	node<T>* _insert(node<T>* h, T data, node<T>*& where_, bool& isInserted)
+	{
+		if (h == nullptr)
+		{
+			isInserted = true;
+			where_ = createNode(data);
+			return where_;
+		}
+
+		if (!multi)
+		{
+			if (cmp(_Kfn(h->data), _Kfn(data)))
+			{
+				h->Right = _insert(h->Right, data, where_, isInserted);
+				h->Right->Parent = h;
+			}
+			else if (cmp(_Kfn(data), _Kfn(h->data)))
+			{
+				h->Left = _insert(h->Left, data, where_, isInserted);
+				h->Left->Parent = h;
+			}
+			else
+			{
+				where_ = h;
+				return h;
+			}
+		}
+		else
+		{
+			if (cmp(_Kfn(h->data), _Kfn(data)))
+			{
+				h->Right = _insert(h->Right, data, where_, isInserted);
+				h->Right->Parent = h;
+			}
+			else
+			{
+				h->Left = _insert(h->Left, data, where_, isInserted);
+				h->Left->Parent = h;
+			}
+		}
+		if (IsRed(h->Right) && !IsRed(h->Left))
+			h = rotateLeft(h);
+		if (IsRed(h->Left) && IsRed(h->Left->Left))
+			h = rotateRight(h);
+		if (IsRed(h->Left) && IsRed(h->Right))
+			flipColors(h);
+
+		return h;
+	}
+
+	template<typename T>
+	node<T>* _insert(node<T>* h, T data, node<T>* node)
+	{
+		if (h == nullptr)
+			return  node;
+
+		if (cmp(_Kfn(h->data), _Kfn(data)))
+		{
+			h->Right = _insert(h->Right, data, node);
+			h->Right->Parent = h;
+		}
+		else
+		{
+			h->Left = _insert(h->Left, data, node);
+			h->Left->Parent = h;
+		}
+		if (IsRed(h->Right) && !IsRed(h->Left))
+			h = rotateLeft(h);
+		if (IsRed(h->Left) && IsRed(h->Left->Left))
+			h = rotateRight(h);
+		if (IsRed(h->Left) && IsRed(h->Right))
+			flipColors(h);
+
+		return h;
+	}
+
+	//recursion deletion of tree
+	void _Erase(node<T>* Rootnode)
+	{
+		for (node<T>* tmp = Rootnode; tmp != nullptr; Rootnode = tmp)
+		{	// free subtrees, then node
+			_Erase(tmp->Right);
+			tmp = tmp->Left;
+			destroyNode(Rootnode);
+		}
+	}
+
 	template<typename T>
 	node<T>* deleteMin()
 	{
@@ -889,9 +914,14 @@ private:
 	template<typename T>
 	void flipColors(node<T>* h)
 	{
-		h->IsRed = !h->IsRed;
-		h->Left->IsRed = !h->Left->IsRed;
-		h->Right->IsRed = !h->Right->IsRed;
+		if(h != nullptr)
+		{
+			h->IsRed = !h->IsRed;
+			if(h->Left != nullptr)
+				h->Left->IsRed = !h->Left->IsRed;
+			if(h->Right != nullptr)
+				h->Right->IsRed = !h->Right->IsRed;
+		}
 	}
 
 
@@ -960,6 +990,7 @@ private:
 	node<T>* moveRedLeft(node<T>* h)
 	{
 		flipColors(h);
+		if(h->Right != nullptr)
 		if (IsRed(h->Right->Left))
 		{
 			h->Right = rotateRight(h->Right);
@@ -973,6 +1004,7 @@ private:
 	node<T>* moveRedRight(node<T>* h)
 	{
 		flipColors(h);
+		if(h->Left != nullptr)
 		if (IsRed(h->Left->Left))
 		{
 			h = rotateRight(h);
@@ -982,12 +1014,9 @@ private:
 	}
 
 	template<typename T>
-	bool IsRed(node<T>* h)
+	inline bool IsRed(node<T>* h)
 	{
-		if (h == nullptr)
-			return false;
-		else
-			return h->IsRed;
+		return h == nullptr ? false : h->IsRed;
 	}
 
 	virtual  key_type _Kfn(value_type _Val) = 0;

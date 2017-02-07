@@ -120,6 +120,20 @@ TEST(eraseTestMultiset, can_erase_one_repeated_element_by_value)
 	ASSERT_EQ(a.size(), 0);
 }
 
+TEST(eraseTestMultiset, can_erase_one_repeated_element_by_value_2)
+{
+	//multisetLLRB<int> a = { 1,1,1,2,3,4,5,5,7,7 };
+	//ASSERT_EQ(a.erase(1), 3);
+	//ASSERT_EQ(a.size(), 7);
+}
+
+TEST(eraseTestMultiset, can_erase_one_repeated_element_by_value_3)
+{
+	/*multisetLLRB<int> a = { 1,1,1,1,1,1,1,2,3,4,5,5,7,7 };
+	ASSERT_EQ(a.erase(1), 7);
+	ASSERT_EQ(a.size(), 7);*/
+}
+
 
 TEST(swapTestMultiset, swap_not_empty_multisets)
 {

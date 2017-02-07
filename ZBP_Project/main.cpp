@@ -13,18 +13,23 @@
 #include <map>
 
 
+#include "PerformanceTest.h"
+#include "PerformanceTestMultiSet.h"
+#include "PerfomanceTestMap.h"
+
+typedef std::chrono::high_resolution_clock Clock;
+
 int main()
 {
-
-	mapLLRB<int, int> a = { { 1,1} };
-	auto ret = a.find(1);
-
-	
+	//PerformanceMultiSet pms;
+	//pms.GetDataForCharts();
+	//PerfomanceSet ps;
+	//ps.GetDataForCharts();
+	PerfomanceMap pm;
+	pm.GetDataForCharts();
 
 	_CrtDumpMemoryLeaks();
-	
 
-	
 
 	return 0;
 }

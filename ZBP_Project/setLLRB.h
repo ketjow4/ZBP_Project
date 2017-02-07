@@ -4,7 +4,7 @@
 #include "LLRB.h"
 
 
-
+#include <functional>
 
 
 
@@ -40,6 +40,13 @@ public:
 			 : base()
 		 {	// construct from initializer_list, defaults
 			 this->insert(_Ilist);
+		 }
+
+		 template<class iter>
+		 setLLRB(iter begin, iter end)
+			 : base()
+		 {	// construct from range
+			 this->insert(begin,end);
 		 }
 };
 
@@ -77,6 +84,13 @@ public:
 		 : base()
 	 {	// construct from initializer_list, defaults
 		 this->insert(_Ilist);
+	 }
+
+	 template<class iter>
+	 multisetLLRB(iter begin, iter end)
+		 : base()
+	 {	
+		 this->insert(begin, end);
 	 }
 
 };

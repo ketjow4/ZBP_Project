@@ -41,6 +41,12 @@ public:
 		 this->insert(_Ilist);
 	 }
 
+	template<class iter>
+	mapLLRB(iter begin, iter end) : base()
+	{	// construct from range
+		this->insert(begin,end);
+	}
+
 
 	 template<class _Keyty,
 		 class... _Mappedty>
@@ -181,6 +187,12 @@ public:
 		: base()
 	{	// construct from initializer_list, defaults
 		this->insert(_Ilist);
+	}
+
+	template<class iter>
+	multimapLLRB(iter begin, iter end) : base()
+	{	// construct from range
+		this->insert(begin, end);
 	}
 
 
